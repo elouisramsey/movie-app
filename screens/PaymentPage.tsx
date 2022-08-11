@@ -47,7 +47,9 @@ const PaymentPage = (props: Props) => {
 
   return (
     <Container>
-      {/* <View>
+      <View style={{
+        height: '100%',
+      }}>
         <Info navigation={props.navigation}>{'Payment'}</Info>
         <View style={styles.container}>
           <View style={styles.card}>
@@ -163,8 +165,8 @@ const PaymentPage = (props: Props) => {
           </View>
           <Button onPress={handleSubmit(onSubmit)} title='Make payment' />
         </View>
-      </View> */}
-<Success navigation={props.navigation} />
+      </View>
+{/* <Success navigation={props.navigation} /> */}
     </Container>
   )
 }

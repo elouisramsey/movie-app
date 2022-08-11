@@ -1,5 +1,12 @@
-import { View, Text, StyleSheet, Animated } from 'react-native'
-import React, { useState, useRef } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  ScrollView,
+  SafeAreaView
+} from 'react-native'
+import React, { useState, useRef, useEffect } from 'react'
 import { Entypo, Feather } from '@expo/vector-icons'
 import { Picker } from '@react-native-picker/picker'
 
@@ -10,6 +17,13 @@ import { MovieDate } from '../../commons/MovieDate'
 import Button from '../../commons/Button'
 import Calendar from '../../commons/Fader'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { useAppDispatch } from '../../../store/Hooks/hooks'
+import {
+  setResolution,
+  setTheatre,
+  setTime,
+  setDate
+} from '../../../store/Features/Cinema/cinemaSlice'
 
 const dates = [
   { day: 'today', weekday: 'wed' },
@@ -183,17 +197,33 @@ const cinemaTimes = {
   }
 }
 
-export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
-    const [date, setDate] = useState(new Date(Date.now()))
-  const opacity = useState(new Animated.Value(0))[0]
+type Props = {
+  navigation: any
+  tabIndex: number
+  changeView: (index: number) => void
+  tabs: any
+}
+
+export default function Showtimes({
+  navigation,
+  tabIndex,
+  changeView,
+  tabs
+}: Props) {
+  // const [date, setDate] = useState(new Date(Date.now()))
+  const [movieDate, setMovieDate] = useState('')
+  const opacity = useState(new Animated.Value(0))[0] as any
   const [currentTab, setCurrentTab] = React.useState(0)
-  const changeViews = (index) => setCurrentTab(index)
+  const changeViews = (index: number) => setCurrentTab(index)
   const [selectedCinema, setSelectedCinema] = React.useState('paragon')
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [selectedTime, setSelectedTime] = useState('')
+  const [currentResolution, setCurrentResolution] = useState('')
 
+  const dispatch = useAppDispatch()
 
-  const onChange = (event, value) => {
-    setDate(value)
+  const onChange = (value: any) => {
+    setMovieDate(value)
   }
 
   function fadeIn() {
@@ -212,42 +242,38 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
     }).start()
   }
 
+  useEffect(() => {
+    dispatch(setTheatre(selectedCinema))
+  }, [selectedCinema])
+
+  const filterDates = () => {
+    const filteredDates = dates.filter((item, index) => index === currentTab)
+    dispatch(setDate(filteredDates[0].day))
+  }
+
+  useEffect(() => {
+    filterDates()
+  }, [currentTab])
+
   return (
-    <Container>
+    <SafeAreaView
+      style={{
+        marginVertical: 20
+      }}
+    >
       <Info navigation={navigation} share>
         {'John Wick 3: Parabellum'}
       </Info>
       <Segment tabs={tabs} currentIndex={tabIndex} onChange={changeView} />
 
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         {showDatePicker && (
-          <>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginVertical: 15
-              }}
-            >
-              <TouchableOpacity
-                style={styles.cancel}
-                onPress={() => {
-                  setShowDatePicker(false)
-                  fadeOut()
-                }}
-              >
-                <Feather name='x' size={18} color='white' />
-              </TouchableOpacity>
-            </View>
-            <Calendar opacity={opacity} date={date} onChange={onChange} />
-            <Button
-              title='Choose date'
-              onPress={() => {
-                setShowDatePicker(false)
-                fadeOut()
-              }}
-            />
-          </>
+          <Calendar
+            value={movieDate}
+            opacity={opacity}
+            defaultDate={new Date(Date.now())}
+            onDateChange={onChange}
+          />
         )}
         {!showDatePicker && (
           <>
@@ -279,9 +305,9 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                 style={styles.picker}
                 itemStyle={styles.pickerItem}
                 selectedValue={selectedCinema}
-                onValueChange={(itemValue, itemIndex) =>
+                onValueChange={(itemValue, itemIndex) => {
                   setSelectedCinema(itemValue)
-                }
+                }}
               >
                 {cinema.map((item) => (
                   <Picker.Item
@@ -296,8 +322,28 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                 {selectedCinema === 'paragon' && (
                   <>
                     {cinemaTimes.paragon.main.map((item, index) => (
-                      <View style={styles.timeHolder} key={index}>
-                        <View style={[styles.timeBox]}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setCurrentResolution('2d')
+                          dispatch(setTime(item.time))
+                          setSelectedTime(item.time)
+                          dispatch(setResolution('2d'))
+                        }}
+                        style={styles.timeHolder}
+                        key={index}
+                      >
+                        <View
+                          style={[
+                            styles.timeBox,
+                            {
+                              backgroundColor:
+                                selectedTime === item.time &&
+                                currentResolution === '2d'
+                                  ? '#D9251D'
+                                  : '#2B3543'
+                            }
+                          ]}
+                        >
                           <Text style={styles.time}>{item.time}</Text>
                         </View>
                         <View
@@ -307,15 +353,35 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                             width: item.width
                           }}
                         />
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </>
                 )}
                 {selectedCinema === 'genesis' && (
                   <>
                     {cinemaTimes.genesis.main.map((item, index) => (
-                      <View style={styles.timeHolder} key={index}>
-                        <View style={[styles.timeBox]}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setCurrentResolution('2d')
+                          setSelectedTime(item.time)
+                          dispatch(setTime(item.time))
+                          dispatch(setResolution('2d'))
+                        }}
+                        style={styles.timeHolder}
+                        key={index}
+                      >
+                        <View
+                          style={[
+                            styles.timeBox,
+                            {
+                              backgroundColor:
+                                selectedTime === item.time &&
+                                currentResolution === '2d'
+                                  ? '#D9251D'
+                                  : '#2B3543'
+                            }
+                          ]}
+                        >
                           <Text style={styles.time}>{item.time}</Text>
                         </View>
                         <View
@@ -325,15 +391,35 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                             width: item.width
                           }}
                         />
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </>
                 )}
                 {selectedCinema === 'cinepolis' && (
                   <>
                     {cinemaTimes.cinepolis.main.map((item, index) => (
-                      <View style={styles.timeHolder} key={index}>
-                        <View style={[styles.timeBox]}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setCurrentResolution('2d')
+                          setSelectedTime(item.time)
+                          dispatch(setTime(item.time))
+                          dispatch(setResolution('2d'))
+                        }}
+                        style={styles.timeHolder}
+                        key={index}
+                      >
+                        <View
+                          style={[
+                            styles.timeBox,
+                            {
+                              backgroundColor:
+                                selectedTime === item.time &&
+                                currentResolution === '2d'
+                                  ? '#D9251D'
+                                  : '#2B3543'
+                            }
+                          ]}
+                        >
                           <Text style={styles.time}>{item.time}</Text>
                         </View>
                         <View
@@ -343,7 +429,7 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                             width: item.width
                           }}
                         />
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </>
                 )}
@@ -354,8 +440,28 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                 {selectedCinema === 'paragon' && (
                   <>
                     {cinemaTimes.paragon.imax.map((item, index) => (
-                      <View style={styles.timeHolder} key={index}>
-                        <View style={[styles.timeBox]}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          dispatch(setTime(item.time))
+                          setSelectedTime(item.time)
+                          setCurrentResolution('imax')
+                          dispatch(setResolution('imax'))
+                        }}
+                        style={styles.timeHolder}
+                        key={index}
+                      >
+                        <View
+                          style={[
+                            styles.timeBox,
+                            {
+                              backgroundColor:
+                                selectedTime === item.time &&
+                                currentResolution === 'imax'
+                                  ? '#D9251D'
+                                  : '#2B3543'
+                            }
+                          ]}
+                        >
                           <Text style={styles.time}>{item.time}</Text>
                         </View>
                         <View
@@ -365,15 +471,35 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                             width: item.width
                           }}
                         />
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </>
                 )}
                 {selectedCinema === 'genesis' && (
                   <>
                     {cinemaTimes.genesis.imax.map((item, index) => (
-                      <View style={styles.timeHolder} key={index}>
-                        <View style={[styles.timeBox]}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectedTime(item.time)
+                          dispatch(setTime(item.time))
+                          dispatch(setResolution('imax'))
+                          setCurrentResolution('imax')
+                        }}
+                        style={styles.timeHolder}
+                        key={index}
+                      >
+                        <View
+                          style={[
+                            styles.timeBox,
+                            {
+                              backgroundColor:
+                                selectedTime === item.time &&
+                                currentResolution === 'imax'
+                                  ? '#D9251D'
+                                  : '#2B3543'
+                            }
+                          ]}
+                        >
                           <Text style={styles.time}>{item.time}</Text>
                         </View>
                         <View
@@ -383,15 +509,35 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                             width: item.width
                           }}
                         />
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </>
                 )}
                 {selectedCinema === 'cinepolis' && (
                   <>
                     {cinemaTimes.cinepolis.imax.map((item, index) => (
-                      <View style={styles.timeHolder} key={index}>
-                        <View style={[styles.timeBox]}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectedTime(item.time)
+                          dispatch(setTime(item.time))
+                          dispatch(setResolution('imax'))
+                          setCurrentResolution('imax')
+                        }}
+                        style={styles.timeHolder}
+                        key={index}
+                      >
+                        <View
+                          style={[
+                            styles.timeBox,
+                            {
+                              backgroundColor:
+                                selectedTime === item.time &&
+                                currentResolution === 'imax'
+                                  ? '#D9251D'
+                                  : '#2B3543'
+                            }
+                          ]}
+                        >
                           <Text style={styles.time}>{item.time}</Text>
                         </View>
                         <View
@@ -401,7 +547,7 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
                             width: item.width
                           }}
                         />
-                      </View>
+                      </TouchableOpacity>
                     ))}
                   </>
                 )}
@@ -410,8 +556,8 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs }) {
             </View>
           </>
         )}
-      </View>
-    </Container>
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 
@@ -469,7 +615,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 48,
 
-    backgroundColor: '#2B3543',
     borderRadius: 2
   },
   time: {
@@ -485,6 +630,6 @@ const styles = StyleSheet.create({
     borderRadius: 40 / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0,0, 0.6)',
+    backgroundColor: 'rgba(0, 0,0, 0.6)'
   }
 })

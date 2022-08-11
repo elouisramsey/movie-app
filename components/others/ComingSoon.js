@@ -95,7 +95,7 @@ export default function ComingSoon({ navigation }) {
     )
   }
   return (
-    <View style={styles.container}>
+
       <FlatList
         data={movies}
         renderItem={renderItem}
@@ -105,7 +105,7 @@ export default function ComingSoon({ navigation }) {
         numColumns={2}
         // style={{flex: 1, flexGrow: 1}}
       />
-    </View>
+
   )
 }
 

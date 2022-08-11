@@ -4,10 +4,16 @@ import React, { useState } from 'react'
 import 'react-native-gesture-handler'
 import * as Font from 'expo-font'
 import AppLoading from 'expo-app-loading'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import Tabs from './navigation/tabs'
+import { store, persistor } from './store/store'
+import { Amplify } from 'aws-amplify'
+import awsconfig from './src/aws-exports'
 
+Amplify.configure(awsconfig)
 
 const getFont = () =>
   Font.loadAsync({
@@ -19,12 +25,16 @@ export default function App() {
 
   if (fontsLoaded) {
     return (
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Tabs />
-          <StatusBar style='light' />
-        </NavigationContainer>
-      </SafeAreaProvider>
+      <Provider store={store}>
+        <PersistGate persistor={persistor}>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Tabs />
+            <StatusBar style='light' />
+          </NavigationContainer>
+        </SafeAreaProvider>
+        </PersistGate>
+      </Provider>
     )
   } else {
     return (

@@ -1,4 +1,10 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity
+} from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -6,17 +12,21 @@ import HomeMovies from '../components/others/HomeMovies'
 
 export default function Home({ navigation }) {
   return (
-    <View style={styles.container}>
-      <SafeAreaView>
-     <View style={styles.child}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingHorizontal: 15,
+        backgroundColor: '#0F1B2B'
+      }}
+    >
+      <View style={styles.child}>
         <Text style={styles.header}>Movie Central</Text>
         <TouchableOpacity>
           <Ionicons name='ios-search-outline' size={24} color='#FFFFFF' />
         </TouchableOpacity>
-     </View>
-     <HomeMovies navigation={navigation} />
-      </SafeAreaView>
-    </View>
+      </View>
+      <HomeMovies navigation={navigation} />
+    </SafeAreaView>
   )
 }
 
@@ -38,6 +48,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#FFFFFF',
     fontFamily: 'SF_Pro',
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   }
 })
