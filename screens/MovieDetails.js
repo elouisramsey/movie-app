@@ -40,7 +40,7 @@ export default function MovieDetails({ navigation }) {
   const [status, setStatus] = React.useState({})
 
   return (
-    <ScrollView>
+    <ScrollView bounces={false}>
       {tabIndex === 0 && (
         <>
           <SafeAreaView style={styles.preview}>

@@ -19,10 +19,10 @@ export default function HomeMovies({ navigation }) {
   const changeView = (index) => setTabIndex(index)
 
   return (
-    <View>
+    <>
       <Segment tabs={tabs} currentIndex={tabIndex} onChange={changeView} />
       {tabIndex === 0 && <ComingSoon navigation={navigation} />}
       {tabIndex === 1 && <Text>Coming soon</Text>}
-    </View>
+    </>
   )
 }

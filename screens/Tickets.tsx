@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   View,
   Text,
@@ -10,7 +11,6 @@ import {
 } from 'react-native'
 
 import { SafeAreaView } from 'react-native-safe-area-context'
-import React from 'react'
 import { Header } from '../components/commons/Header'
 import {
   Directions,
@@ -160,6 +160,7 @@ const Tickets: React.FC = () => {
       >
         <SafeAreaView style={[styles.container]}>
           <Header title={'Tickets'} />
+          <View style={[styles.spacer]} />
           <FlatList
             data={data}
             keyExtractor={(item) => item.id.toString()}
@@ -174,7 +175,7 @@ const Tickets: React.FC = () => {
               const newStyle = [
                 style,
                 {
-                  zIndez: data.length - index,
+                  zIndex: data.length - index,
                   left: -IMAGE_WIDTH / 2,
                   top: -IMAGE_HEIGHT / 2
                 }
@@ -347,6 +348,9 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     textTransform: 'uppercase',
     marginTop: 5
+  },
+  spacer: {
+    marginVertical: 20
   }
 })
 

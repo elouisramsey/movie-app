@@ -10,73 +10,24 @@ import {
 import Button from '../components/commons/Button'
 import { Container } from '../components/commons/Container'
 import Info from '../components/commons/Info'
-
-const items = [
-  {
-    id: 'coke',
-    name: 'coca cola',
-    price: 4,
-    image: require('../assets/images/coke.png')
-  },
-  {
-    id: 'pepsi',
-    name: 'pepsi',
-    price: 4,
-    image: require('../assets/images/pepsi.png')
-  },
-  {
-    id: 'sevenup',
-    name: '7up',
-    price: 3,
-    image: require('../assets/images/7up.png')
-  },
-  {
-    id: 'popcorn',
-    name: 'popcorn',
-    price: 5,
-    image: require('../assets/images/popcorn.png')
-  }
-]
+import { addExtra, decreaseExtra } from '../store/Features/Ticket/ticketSlice'
+import {
+  totalExtraPriceSelector,
+  totalExtraQty,
+  totalPriceSelector
+} from '../store/Hooks/costCal'
+import { useAppDispatch, useAppSelector } from '../store/Hooks/hooks'
 
 interface ExtrasProps {
   navigation: any
 }
 
 const Extra: React.FC<ExtrasProps> = ({ navigation }) => {
-  const [counter, setCounter] = React.useState<any>({
-    coke: 0,
-    pepsi: 0,
-    sevenup: 0,
-    popcorn: 0
-  })
-  const [total, setTotal] = React.useState(0)
-  const [totalPriceofItem, setTotalPriceofItem] = React.useState(0)
-  const [testcount, setTestCount] = React.useState(0)
-
-  const sumValues = (obj: Object) => Object.values(obj).reduce((a, b) => a + b)
-
-  const handleIncrement = React.useCallback(
-    (item: string): void => {
-      setCounter({
-        ...counter,
-        [item]: counter[item] + 1
-      })
-    },
-    [counter]
-  )
-  const handleDecrement = React.useCallback(
-    (item: string): void => {
-      setCounter({
-        ...counter,
-        [item]: counter[item] - 1
-      })
-    },
-    [counter]
-  )
-
-  useEffect(() => {
-    setTotal(sumValues(counter))
-  }, [counter])
+  const dispatch = useAppDispatch()
+  const totalPrice = useAppSelector(totalPriceSelector)
+  const totalExtra = useAppSelector(totalExtraPriceSelector)
+  const totalExtraItems = useAppSelector(totalExtraQty)
+  const items = useAppSelector((state) => state.ticket.extras)
 
   return (
     <Container>
@@ -93,24 +44,20 @@ const Extra: React.FC<ExtrasProps> = ({ navigation }) => {
             </View>
             <View style={styles.counterHolder}>
               <TouchableOpacity
-                disabled={counter[item.id] === 0}
+                disabled={item.quantity < 1}
                 style={styles.btnHolder}
                 onPress={() => {
-                 setTotalPriceofItem(totalPriceofItem - Number(item.price))
-                  handleDecrement(item.id)
+                  dispatch(decreaseExtra(item))
                 }}
               >
                 <Text style={styles.sub}>-</Text>
               </TouchableOpacity>
               <View style={styles.counter}>
-                <Text style={styles.counterText}>{counter[item.id]}</Text>
+                <Text style={styles.counterText}>{item.quantity}</Text>
               </View>
               <TouchableOpacity
                 style={styles.btnHolder}
-                onPress={() => {
-                  setTotalPriceofItem(totalPriceofItem + Number(item.price))
-                  handleIncrement(item.id)
-                }}
+                onPress={() => dispatch(addExtra(item))}
               >
                 <Text style={styles.sub}>+</Text>
               </TouchableOpacity>
@@ -118,14 +65,18 @@ const Extra: React.FC<ExtrasProps> = ({ navigation }) => {
           </View>
         ))}
         <View style={[styles.item, { borderBottomColor: 'transparent' }]}>
-          <Text style={styles.numberofItems}>{total} Items Selected</Text>
-          <Text style={styles.amount}>${totalPriceofItem}.00</Text>
+          <Text style={styles.numberofItems}>
+            {totalExtraItems} Items Selected
+          </Text>
+          <Text style={styles.amount}>${totalExtra}.00</Text>
         </View>
       </View>
       <View style={styles.bottom}>
         <View>
           <Text style={styles.cost}>Total cost</Text>
-          <Text style={styles.amount}>${totalPriceofItem}.00</Text>
+          <Text style={styles.amount}>
+            ${Number(totalExtra) + Number(totalPrice)}.00
+          </Text>
         </View>
         <View style={{ width: '45%' }}>
           <Button

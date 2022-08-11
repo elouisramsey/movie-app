@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView } from 'react-native'
 import React from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
 
@@ -32,53 +32,55 @@ const data = [
 
 export default function Reviews({ navigation, tabIndex, changeView, tabs }) {
   return (
-    <Container>
+    <SafeAreaView>
       <Info navigation={navigation} share>
         {'John Wick 3: Parabellum'}
       </Info>
-      <Segment tabs={tabs} currentIndex={tabIndex} onChange={changeView} />
-      <View style={styles.ratingContainer}>
-        <View style={styles.rating}>
-          <Text style={styles.ratingText}>4.6/5</Text>
-          <View style={styles.ratings}>
-            <MaterialIcons name='star' size={30} color='#ffc045' />
-            <MaterialIcons name='star' size={30} color='#ffc045' />
-            <MaterialIcons name='star' size={30} color='#ffc045' />
-            <MaterialIcons name='star' size={30} color='#ffc045' />
-            <MaterialIcons name='star' size={30} color='#ffc045' />
-          </View>
-        </View>
-        <Text style={styles.numberofRatings}>38 Reviews</Text>
+      <View>
+        <Segment tabs={tabs} currentIndex={tabIndex} onChange={changeView} />
       </View>
-      {data?.map((item) => (
-        <View style={styles.commentHolder} key={item.id}>
-          <View style={styles.commentContainer}>
+      <ScrollView>
+        <View style={styles.ratingContainer}>
+          <View style={styles.rating}>
+            <Text style={styles.ratingText}>4.6/5</Text>
             <View style={styles.ratings}>
-              <MaterialIcons name='star' size={20} color='#ffc045' />
-              <MaterialIcons name='star' size={20} color='#ffc045' />
-              <MaterialIcons name='star' size={20} color='#ffc045' />
-              <MaterialIcons name='star' size={20} color='#ffc045' />
-              <MaterialIcons name='star' size={20} color='#ffc045' />
-            </View>
-            <Text style={styles.comment}>
-          {item.comment}
-            </Text>
-          </View>
-          <View style={styles.arrow}>
-            <MaterialIcons name='arrow-drop-down' size={80} color='#2B3543' />
-          </View>
-          <View style={styles.commenter}>
-            <View style={styles.imgHolder}>
-              <Image source={item.image} />
-            </View>
-            <View style={styles.commenterInfo}>
-              <Text style={styles.commenterName}>{item.name}</Text>
-              <Text style={styles.commenterDate}>May 20, 2019</Text>
+              <MaterialIcons name='star' size={30} color='#ffc045' />
+              <MaterialIcons name='star' size={30} color='#ffc045' />
+              <MaterialIcons name='star' size={30} color='#ffc045' />
+              <MaterialIcons name='star' size={30} color='#ffc045' />
+              <MaterialIcons name='star' size={30} color='#ffc045' />
             </View>
           </View>
+          <Text style={styles.numberofRatings}>38 Reviews</Text>
         </View>
-      ))}
-    </Container>
+        {data?.map((item) => (
+          <View style={styles.commentHolder} key={item.id}>
+            <View style={styles.commentContainer}>
+              <View style={styles.ratings}>
+                <MaterialIcons name='star' size={20} color='#ffc045' />
+                <MaterialIcons name='star' size={20} color='#ffc045' />
+                <MaterialIcons name='star' size={20} color='#ffc045' />
+                <MaterialIcons name='star' size={20} color='#ffc045' />
+                <MaterialIcons name='star' size={20} color='#ffc045' />
+              </View>
+              <Text style={styles.comment}>{item.comment}</Text>
+            </View>
+            <View style={styles.arrow}>
+              <MaterialIcons name='arrow-drop-down' size={80} color='#2B3543' />
+            </View>
+            <View style={styles.commenter}>
+              <View style={styles.imgHolder}>
+                <Image source={item.image} />
+              </View>
+              <View style={styles.commenterInfo}>
+                <Text style={styles.commenterName}>{item.name}</Text>
+                <Text style={styles.commenterDate}>May 20, 2019</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 
