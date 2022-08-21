@@ -1,10 +1,29 @@
-import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  SafeAreaView,
+  FlatList
+} from 'react-native'
 import React from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
 
 import { Container } from '../../commons/Container'
 import Info from '../../commons/Info'
 import Segment from '../../commons/Segment'
+import { api, key } from '../../../store/Features/Movies/movieSlice'
+import Dateformatter from '../../commons/DateFormatter'
+
+type Props = {
+  navigation: any
+  tabIndex: number
+  changeView: (index: number) => void
+  tabs: any
+  movie: string
+  title: string
+}
 
 const data = [
   {
@@ -30,30 +49,54 @@ const data = [
   }
 ]
 
-export default function Reviews({ navigation, tabIndex, changeView, tabs }) {
+export default function Reviews({
+  navigation,
+  tabIndex,
+  changeView,
+  tabs,
+  movie,
+  title
+}: Props) {
+  const [reviews, setReviews] = React.useState([]) as any
+
+  const getReview = async () => {
+    api
+      .get(`movie/${movie}/reviews?api_key=${key}&language=en-US`)
+      .then((res) => {
+        setReviews(res.data.results)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  React.useEffect(() => {
+    getReview()
+  }, [])
+
   return (
     <SafeAreaView>
       <Info navigation={navigation} share>
-        {'John Wick 3: Parabellum'}
+        {title}
       </Info>
+
       <View>
         <Segment tabs={tabs} currentIndex={tabIndex} onChange={changeView} />
       </View>
-      <ScrollView>
-        <View style={styles.ratingContainer}>
-          <View style={styles.rating}>
-            <Text style={styles.ratingText}>4.6/5</Text>
-            <View style={styles.ratings}>
-              <MaterialIcons name='star' size={30} color='#ffc045' />
-              <MaterialIcons name='star' size={30} color='#ffc045' />
-              <MaterialIcons name='star' size={30} color='#ffc045' />
-              <MaterialIcons name='star' size={30} color='#ffc045' />
-              <MaterialIcons name='star' size={30} color='#ffc045' />
-            </View>
+      <View style={styles.ratingContainer}>
+        <View style={styles.rating}>
+          <Text style={styles.ratingText}>4.6/5</Text>
+          <View style={styles.ratings}>
+            <MaterialIcons name='star' size={30} color='#ffc045' />
+            <MaterialIcons name='star' size={30} color='#ffc045' />
+            <MaterialIcons name='star' size={30} color='#ffc045' />
+            <MaterialIcons name='star' size={30} color='#ffc045' />
+            <MaterialIcons name='star' size={30} color='#ffc045' />
           </View>
-          <Text style={styles.numberofRatings}>38 Reviews</Text>
         </View>
-        {data?.map((item) => (
+        <Text style={styles.numberofRatings}>{reviews.length} reviews</Text>
+      </View>
+      <FlatList
+        data={reviews}
+        renderItem={({ item }) => (
           <View style={styles.commentHolder} key={item.id}>
             <View style={styles.commentContainer}>
               <View style={styles.ratings}>
@@ -63,23 +106,32 @@ export default function Reviews({ navigation, tabIndex, changeView, tabs }) {
                 <MaterialIcons name='star' size={20} color='#ffc045' />
                 <MaterialIcons name='star' size={20} color='#ffc045' />
               </View>
-              <Text style={styles.comment}>{item.comment}</Text>
+              <Text style={styles.comment}>{item.content}</Text>
             </View>
             <View style={styles.arrow}>
               <MaterialIcons name='arrow-drop-down' size={80} color='#2B3543' />
             </View>
             <View style={styles.commenter}>
-              <View style={styles.imgHolder}>
-                <Image source={item.image} />
-              </View>
+              <Image
+                object-fit='cover'
+                style={styles.imgHolder}
+                source={{
+                  uri: item?.author_details.avatar_path.substring(1)
+                }}
+              />
+
               <View style={styles.commenterInfo}>
-                <Text style={styles.commenterName}>{item.name}</Text>
-                <Text style={styles.commenterDate}>May 20, 2019</Text>
+                <Text style={styles.commenterName}>{item.author}</Text>
+
+                <Dateformatter
+                  date={item.created_at}
+                  textStyle={styles.commenterDate}
+                />
               </View>
             </View>
           </View>
-        ))}
-      </ScrollView>
+        )}
+      />
     </SafeAreaView>
   )
 }
@@ -112,7 +164,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'SF_Pro',
     fontSize: 22,
-    opacity: 0.5
+    opacity: 0.5,
+    marginBottom: 10
   },
   commentHolder: {
     marginHorizontal: 15,
@@ -135,7 +188,7 @@ const styles = StyleSheet.create({
     marginTop: 15
   },
   arrow: {
-    marginTop: -35,
+    marginTop: -35
   },
   commenter: {
     flexDirection: 'row',
@@ -146,12 +199,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 40 / 2,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
     overflow: 'hidden'
   },
   commenterInfo: {
     marginLeft: 10,
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   commenterName: {
     fontFamily: 'SF_Pro',

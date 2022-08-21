@@ -61,17 +61,26 @@ const data = [
   }
 ]
 
-export default function CastAndCrew({navigation}) {
+export default function CastAndCrew({
+  navigation,
+  route
+}: {
+  navigation: any
+  route: any
+}) {
+  const { actors } = route.params
+  const candc = [...actors.cast, ...actors.crew]
+  const filtercandc = [
+    ...new Map(candc.map((item) => [item.id, item])).values()
+  ]
   return (
-    <ScrollView>
-      <SafeAreaView>
-        <Info navigation={navigation}>{'Cast & Crew'}</Info>
-        <View style={{ paddingHorizontal: 15 }}>
-          {data.map((item) => (
-            <Cast key={item.id} {...item} />
-          ))}
-        </View>
-      </SafeAreaView>
-    </ScrollView>
+    <SafeAreaView>
+      <Info navigation={navigation}>{'Cast & Crew'}</Info>
+      <ScrollView style={{ paddingHorizontal: 15 }}>
+        {filtercandc.map((item) => (
+          <Cast key={item.id} {...item} />
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   )
 }

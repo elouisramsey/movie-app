@@ -12,6 +12,8 @@ import Tabs from './navigation/tabs'
 import { store, persistor } from './store/store'
 import { Amplify } from 'aws-amplify'
 import awsconfig from './src/aws-exports'
+// @ts-ignore
+import { withAuthenticator } from 'aws-amplify-react-native'
 
 Amplify.configure(awsconfig)
 
@@ -20,7 +22,7 @@ const getFont = () =>
     SF_Pro: require('./assets/fonts/SF-Pro-Text-Regular.otf')
   })
 
-export default function App() {
+function App() {
   const [fontsLoaded, setFontLoaded] = useState(false)
 
   if (fontsLoaded) {
@@ -46,6 +48,8 @@ export default function App() {
     )
   }
 }
+
+export default App
 
 const styles = StyleSheet.create({
   container: {

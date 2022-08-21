@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native'
 import React from 'react'
 import { useForm, Controller } from 'react-hook-form'
 
@@ -7,6 +7,16 @@ import Info from '../components/commons/Info'
 import { Input } from '../components/commons/Input'
 import Button from '../components/commons/Button'
 import Success from '../components/commons/Success'
+import {
+  totalPriceSelector,
+  totalExtraPriceSelector,
+  extrasSelected
+} from '../store/Hooks/costCal'
+import { useAppSelector } from '../store/Hooks/hooks'
+import Login from './Login'
+import { API, Auth } from 'aws-amplify'
+import { createTickets, updateUser } from '../src/graphql/mutations'
+import { getUser } from '../src/graphql/queries'
 
 type Props = {
   navigation: any
@@ -20,6 +30,18 @@ type CardInfo = {
 }
 
 const PaymentPage = (props: Props) => {
+  const loggedInUser = useAppSelector((state) => state.user.user)
+  const ticketInfo = useAppSelector((state) => state.cinema)
+  const poster = useAppSelector((state) => state.cinema.moviePoster)
+  const [loading, setLoading] = React.useState(false)
+  const totalPrice = useAppSelector(totalPriceSelector)
+  const totalExtra = useAppSelector(totalExtraPriceSelector)
+  const extras = useAppSelector(extrasSelected)
+  const selectedInfo = useAppSelector((state) => state.cinema)
+  const { date, time, theatre, movieName, resolution, selectedSeat } =
+    selectedInfo
+
+  const [showModal, setShowModal] = React.useState(false)
   const {
     handleSubmit,
     control,
@@ -27,7 +49,7 @@ const PaymentPage = (props: Props) => {
     formState: { errors }
   } = useForm<CardInfo>({
     defaultValues: {},
-    mode: 'onBlur',
+    mode: 'onChange',
     reValidateMode: 'onChange'
   })
 
@@ -35,7 +57,7 @@ const PaymentPage = (props: Props) => {
     return val.replace(/^(\d{2})(\d{2})/, '$1/$2/')
   }
 
-  const handleCarNumber = (val: string) => {
+  const handleCardNumber = (val: string) => {
     const value = val
       .replace(/\s?/g, '')
       .replace(/(\d{4})/g, '$1 ')
@@ -43,131 +65,220 @@ const PaymentPage = (props: Props) => {
     return value
   }
 
-  const onSubmit = (data: object) => console.log(data)
+  const createTicketonDb = async () => {
+    const isUserAvailable = await Auth.currentAuthenticatedUser()
+
+    try {
+      const createTicket = await API.graphql({
+        query: createTickets,
+        variables: {
+          input: {
+            id: isUserAvailable.attributes.sub,
+            name: ticketInfo.movieName,
+            date: ticketInfo.date,
+            time: ticketInfo.time,
+            theatre: ticketInfo.theatre,
+            Image: ticketInfo.moviePoster,
+            seat: ticketInfo.selectedSeat,
+            reference: new Date().getTime() + Math.random(),
+            extras: JSON.stringify(extras),
+          }
+        }
+      })
+
+      const getUserFromDb = (await API.graphql({
+        query: getUser,
+        variables: {
+          id: isUserAvailable.attributes.sub
+        }
+      })) as any
+      // const updatePoints = await API.graphql({
+      //   query: updateUser,
+      //   variables: {
+      //     input: {
+      //       id: isUserAvailable.attributes.sub,
+      //       points:   10
+      //     }
+      //   }
+        
+      // })
+
+      if (createTicket) {
+        console.log(getUserFromDb)
+      }
+      console.log(createTicket)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const onSubmit = (data: object) => {
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      createTicketonDb()
+      // setShowModal(true)
+    }, 2000)
+  }
 
   return (
-    <Container>
-      <View style={{
-        height: '100%',
-      }}>
-        <Info navigation={props.navigation}>{'Payment'}</Info>
-        <View style={styles.container}>
-          <View style={styles.card}>
-            <View style={styles.imageHolder}>
-              <Image
-                style={styles.image}
-                source={require('../assets/images/payment.png')}
-              />
-            </View>
-            <View style={styles.textHolder}>
-              <Text style={styles.name}>John Wick 3: Parabellum</Text>
-              <Text style={styles.subItems}>8:30 - 10:00 AM</Text>
-              <Text style={styles.subItems}>Friday 24 may, 2019</Text>
-              <Text style={styles.subItems}>Seat: E4, E5</Text>
-            </View>
-          </View>
-          <View>
-            <Controller
-              name='cardName'
-              defaultValue=''
-              control={control}
-              rules={{
-                required: { value: true, message: 'Name is required' }
-              }}
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  error={Boolean(errors?.cardName)}
-                  errorText={errors?.cardName?.message}
-                  onChangeText={(text) => onChange(text)}
-                  value={value}
-                  label='Name on Card'
+    <View
+      style={{
+        paddingVertical: 35,
+        flex: 1
+      }}
+    >
+      <Info navigation={props.navigation}>{'Payment'}</Info>
+      {loggedInUser ? (
+        <>
+          <ScrollView>
+            <View style={styles.container}>
+              <View style={styles.card}>
+                <Image
+                  style={styles.imageHolder}
+                  source={{
+                    uri: poster
+                  }}
                 />
-              )}
-            />
-            <Controller
-              name='cardNumber'
-              control={control}
-              rules={{
-                required: { value: true, message: 'Card Number is required' },
-                min: { value: 16, message: 'Card Number is not valid' },
-                max: {
-                  value: 16,
-                  message: 'Card Number should be up to 16 digits'
-                }
-              }}
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  error={Boolean(errors?.cardNumber)}
-                  errorText={errors?.cardNumber?.message}
-                  onChangeText={(text) => onChange(text)}
-                  value={value}
-                  label='Card Number'
-                  keyboardType='numeric'
-                  maxlength={16}
-                />
-              )}
-            />
-            <View style={styles.cardExpiration}>
-              <View style={{ width: '50%' }}>
+
+                <View style={styles.textHolder}>
+                  <Text style={styles.name}>{movieName}</Text>
+                  <Text style={styles.subItems}>{time}</Text>
+                  <Text style={styles.subItems}>{date}</Text>
+                  <Text style={styles.subItems}>Seat: {selectedSeat}</Text>
+                  <Text style={styles.subItems}>Theatre: {theatre}</Text>
+                </View>
+              </View>
+              <View>
                 <Controller
-                  name='cardExpiration'
+                  name='cardName'
+                  defaultValue=''
+                  control={control}
+                  rules={{
+                    required: { value: true, message: 'Name is required' }
+                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      error={Boolean(errors?.cardName)}
+                      errorText={errors?.cardName?.message}
+                      onChangeText={(text) => onChange(text)}
+                      value={value}
+                      label='Name on Card'
+                    />
+                  )}
+                />
+                <Controller
+                  name='cardNumber'
                   control={control}
                   rules={{
                     required: {
                       value: true,
-                      message: 'Card Expiration is required'
+                      message: 'Card Number is required'
                     },
-                    max: { value: 5, message: 'Card Expiration is invalid' },
-                    min: { value: 5, message: 'Card Expiration is invalid' }
+                    minLength: {
+                      value: 16,
+                      message: 'Card Number is not valid'
+                    },
+                    maxLength: {
+                      value: 16,
+                      message: 'Card Number should be up to 16 digits'
+                    }
                   }}
                   render={({ field: { onChange, value } }) => (
                     <Input
-                      error={Boolean(errors?.cardExpiration)}
-                      errorText={errors?.cardExpiration?.message}
-                      onChangeText={(text) => onChange(insertSlash(text))}
-                      value={value}
-                      label='Date Expires'
-                      keyboardType='numeric'
-                    />
-                  )}
-                />
-              </View>
-              <View style={{ width: '40%' }}>
-                <Controller
-                  name='cardCvv'
-                  control={control}
-                  rules={{
-                    required: { value: true, message: 'Card CVV is required' },
-                    min: { value: 3, message: 'Card CVV is invalid' },
-                    max: { value: 3, message: 'Card CVV is invalid' }
-                  }}
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      error={Boolean(errors?.cardCvv)}
-                      errorText={errors?.cardCvv?.message}
+                      error={Boolean(errors?.cardNumber)}
+                      errorText={errors?.cardNumber?.message}
                       onChangeText={(text) => onChange(text)}
                       value={value}
-                      label='CVV'
+                      label='Card Number'
                       keyboardType='numeric'
-                      maxlength={3}
+                      maxlength={16}
                     />
                   )}
                 />
+                <View style={styles.cardExpiration}>
+                  <View style={{ width: '50%' }}>
+                    <Controller
+                      name='cardExpiration'
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: 'Card Expiration is required'
+                        },
+                        maxLength: {
+                          value: 4,
+                          message: 'Card Expiration is invalid'
+                        },
+                        minLength: {
+                          value: 4,
+                          message: 'Card Expiration is invalid'
+                        }
+                      }}
+                      render={({ field: { onChange, value } }) => (
+                        <Input
+                          error={Boolean(errors?.cardExpiration)}
+                          errorText={errors?.cardExpiration?.message}
+                          onChangeText={(text) => onChange(text)}
+                          value={value}
+                          label='Date Expires'
+                          keyboardType='numeric'
+                        />
+                      )}
+                    />
+                  </View>
+                  <View style={{ width: '40%' }}>
+                    <Controller
+                      name='cardCvv'
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: 'Card CVV is required'
+                        },
+                        minLength: {
+                          value: 3,
+                          message: 'Card CVV should be up to 3'
+                        },
+                        maxLength: { value: 3, message: 'Card CVV is invalid' }
+                      }}
+                      render={({ field: { onChange, value } }) => (
+                        <Input
+                          error={Boolean(errors?.cardCvv)}
+                          errorText={errors?.cardCvv?.message}
+                          onChangeText={(text) => onChange(+text)}
+                          value={value}
+                          label='CVV'
+                          keyboardType='numeric'
+                          maxlength={3}
+                        />
+                      )}
+                    />
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
-        </View>
+          </ScrollView>
 
-        <View style={styles.buttonHolder}>
-          <View style={styles.cost}>
-            <Text style={styles.costText}>total cost</Text>
-            <Text style={styles.price}>$10.00</Text>
+          <View style={styles.buttonHolder}>
+            <View style={styles.cost}>
+              <Text style={styles.costText}>total cost</Text>
+              <Text style={styles.price}>
+                ${Number(totalExtra) + Number(totalPrice)}.00
+              </Text>
+            </View>
+            <Button
+              loading={loading}
+              onPress={handleSubmit(onSubmit)}
+              title='Make payment'
+            />
           </View>
-          <Button onPress={handleSubmit(onSubmit)} title='Make payment' />
-        </View>
-      </View>
-{/* <Success navigation={props.navigation} /> */}
-    </Container>
+        </>
+      ) : (
+        <Login navigateTopage={false} />
+      )}
+      <Success showModal={showModal} navigation={props.navigation} />
+    </View>
   )
 }
 
@@ -181,7 +292,6 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 20,
@@ -200,7 +310,9 @@ const styles = StyleSheet.create({
     // resizeMode: 'cover'
     borderRadius: 8
   },
-  textHolder: {},
+  textHolder: {
+    marginLeft: 20
+  },
   name: {
     fontSize: 16,
     color: '#fff',
@@ -209,7 +321,8 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize'
   },
   subItems: {
-    fontSize: 14,
+    fontSize: 12,
+    lineHeight: 15,
     color: '#fff',
     fontFamily: 'SF_Pro',
     opacity: 0.5,

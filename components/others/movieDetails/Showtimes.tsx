@@ -202,14 +202,10 @@ type Props = {
   tabIndex: number
   changeView: (index: number) => void
   tabs: any
+  title: string
 }
 
-export default function Showtimes({
-  navigation,
-  tabIndex,
-  changeView,
-  tabs
-}: Props) {
+export default function Showtimes({ navigation, tabIndex, changeView, tabs, title }: Props) {
   // const [date, setDate] = useState(new Date(Date.now()))
   const [movieDate, setMovieDate] = useState('')
   const opacity = useState(new Animated.Value(0))[0] as any
@@ -262,11 +258,11 @@ export default function Showtimes({
       }}
     >
       <Info navigation={navigation} share>
-        {'John Wick 3: Parabellum'}
+        {title}
       </Info>
       <Segment tabs={tabs} currentIndex={tabIndex} onChange={changeView} />
 
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} bounces={false}>
         {showDatePicker && (
           <Calendar
             value={movieDate}
@@ -552,7 +548,10 @@ export default function Showtimes({
                   </>
                 )}
               </View>
-              <Button onPress={() => navigation.navigate('SeatSelection')} />
+              <Button
+                onPress={() => navigation.navigate('SeatSelection')}
+                disabled={selectedTime.length === 0}
+              />
             </View>
           </>
         )}
@@ -564,7 +563,8 @@ export default function Showtimes({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 15,
-    paddingVertical: 15
+    paddingVertical: 15,
+    paddingBottom: 280
   },
   top: {
     alignItems: 'center',

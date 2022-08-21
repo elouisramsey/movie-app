@@ -18,13 +18,14 @@ type Props = {
   label?: string
   errorText?: string
   maxlength?: number
-    labelStyle?: any
-    inputContainerStyle?: any
+  labelStyle?: any
+  inputContainerStyle?: any
+  containerStyle?: any
 }
 
 const Input = (props: Props) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, props.containerStyle]}>
       <Text style={[styles.label, props.labelStyle]}>{props.label}</Text>
       <View
         style={[

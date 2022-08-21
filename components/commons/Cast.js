@@ -2,15 +2,23 @@ import { View, Text, Image, StyleSheet } from 'react-native'
 import React from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-export default function Cast({image, name, role}) {
+export default function Cast({ profile_path, name, job }) {
+  const baseImgUrl = 'https://image.tmdb.org/t/p'
+  const size = 'w200'
   return (
     <View style={styles.container}>
       <View style={styles.imgHolder}>
-        <Image source={image} />
+        <Image
+          source={{
+            uri: `${baseImgUrl}/${size}${profile_path}`
+          }}
+          objectFit='cover'
+          style={styles.imgHolder}
+        />
       </View>
       <Text style={styles.name}>{name}</Text>
       <MaterialCommunityIcons name='dots-horizontal' size={28} color='grey' />
-      <Text style={styles.role}>{role}</Text>
+      {/* <Text style={styles.role}>{job}</Text> */}
     </View>
   )
 }
@@ -27,13 +35,13 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 50 / 2,
     resizeMode: 'cover',
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   name: {
     fontFamily: 'SF_Pro',
     fontSize: 14,
     color: '#FFFFFF',
-    fontWeight: '500',
+    fontWeight: '500'
   },
   role: {
     fontFamily: 'SF_Pro',

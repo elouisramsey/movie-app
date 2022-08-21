@@ -16,6 +16,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../store/Hooks/hooks'
 import { addTicket } from '../store/Features/Ticket/ticketSlice'
 import { totalPriceSelector } from '../store/Hooks/costCal'
+import { setSelectedSeat } from '../store/Features/Cinema/cinemaSlice'
 
 interface Props {
   available: boolean
@@ -334,7 +335,9 @@ const SeatSelection: React.FC<Selection> = ({ navigation }) => {
           <Button
             disabled={totalPrice === 0}
             title='Continue'
-            onPress={() => navigation.navigate('Extra')}
+            onPress={() => {
+              dispatch(setSelectedSeat(rows))
+              navigation.navigate('Extra')}}
           />
         </View>
       </View>

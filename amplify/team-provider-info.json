@@ -10,6 +10,17 @@
       "StackName": "amplify-movieapp-dev-140801",
       "StackId": "arn:aws:cloudformation:us-east-2:097895025316:stack/amplify-movieapp-dev-140801/a4b5b300-1976-11ed-a7b8-06b895b5ab14",
       "AmplifyAppId": "d32n72oys2e62q"
+    },
+    "categories": {
+      "auth": {
+        "movieapp958eb076": {}
+      },
+      "function": {
+        "movieappaa89d76f": {
+          "deploymentBucketName": "amplify-movieapp-dev-140801-deployment",
+          "s3Key": "amplify-builds/movieappaa89d76f-555956455373594f2b45-build.zip"
+        }
+      }
     }
   }
 }

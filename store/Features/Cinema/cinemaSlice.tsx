@@ -4,7 +4,10 @@ const initialState = {
   time: '',
   theatre: '',
   date: '',
-  resolution: ''
+  resolution: '',
+  movieName: '',
+  selectedSeat: '',
+  moviePoster: ''
 }
 
 const cinemaSlice = createSlice({
@@ -35,11 +38,36 @@ const cinemaSlice = createSlice({
         ...state,
         resolution: payload
       }
+    },
+    setMovieName: (state: any, { payload }: any) => {
+      return {
+        ...state,
+        movieName: payload
+      }
+    },
+    setSelectedSeat: (state: any, { payload }: any) => {
+      return {
+        ...state,
+        selectedSeat: payload
+      }
+    },
+    setMoviePoster: (state: any, { payload }: any) => {
+      return {
+        ...state,
+        moviePoster: payload
+      }
     }
   }
 })
 
-export const { setTime, setTheatre, setDate, setResolution } =
-  cinemaSlice.actions
+export const {
+  setTime,
+  setTheatre,
+  setDate,
+  setResolution,
+  setMovieName,
+  setSelectedSeat,
+  setMoviePoster
+} = cinemaSlice.actions
 const cinemaReducer = cinemaSlice.reducer
 export default cinemaReducer

@@ -33,23 +33,35 @@ const data = [
   }
 ]
 
-export default function Details({ navigation, tabIndex, changeView, tabs }) {
+type Props = {
+  navigation: any
+  tabIndex: number
+  changeView: (index: number) => void
+  tabs: any
+  synopsis: string
+  actors: any
+}
+
+export default function Details({
+  navigation,
+  tabIndex,
+  changeView,
+  tabs,
+  synopsis,
+  actors
+}: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.tabContainer}>
         <Segment tabs={tabs} currentIndex={tabIndex} onChange={changeView} />
       </View>
       <Text style={styles.title}>Synopsis</Text>
-      <TextDescription
-        text={
-          'In this third installment of the adrenaline-fueled action franchise, super-assassin John Wick returns with a $14 million price tag on his head and an army of bounty-hunting killers on his trail. After killing a member of the shadowy international assassin’s guild, the High Table'
-        }
-      />
+      <TextDescription text={synopsis} />
       <MoreInfo
         label={'Cast & Crew'}
-        onPress={() => navigation.navigate('CastAndCrew')}
+        onPress={() => navigation.navigate('CastAndCrew', { actors })}
       />
-      {data.map((item) => (
+      {actors?.cast?.slice(0, 4).map((item: any) => (
         <Cast key={item.id} {...item} />
       ))}
       <Preview navigation={navigation} />
