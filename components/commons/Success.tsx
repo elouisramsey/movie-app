@@ -1,71 +1,99 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native'
 import React from 'react'
 import { FontAwesome5, Feather } from '@expo/vector-icons'
 
 import { Container } from './Container'
 import { NavigationContainer } from '@react-navigation/native'
+import { useAppSelector } from '../../store/Hooks/hooks'
 
 type Props = {
   navigation: any
-  theatre: string
-  seat: string
-  date: string
-  time: string
+  showModal: boolean
+  contentWrapperStyle?: object
 }
 
-const Success = (props: Props) => {
+const Success = ({
+  showModal,
+  contentWrapperStyle,
+  navigation
+}: Props) => {
+    const selectedInfo = useAppSelector((state) => state.cinema)
   return (
-    <Container>
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <View style={styles.imageHolder}>
-            <View style={styles.mark}>
-              <FontAwesome5 name='check' size={24} color='#4CD964' />
-            </View>
-          </View>
-          <Text style={styles.title}>Congratulations!</Text>
-          <Text style={styles.subText}>
-            You have successfully booked the movie
-          </Text>
+    <>
+      <Modal transparent={true} animationType={'none'} visible={showModal}>
+        <View style={styles.modalBackground}>
+          <View style={[styles.contentWrapper, contentWrapperStyle]}>
+            <View style={styles.card}>
+              <View style={styles.imageHolder}>
+                <View style={styles.mark}>
+                  <FontAwesome5 name='check' size={24} color='#4CD964' />
+                </View>
+              </View>
+              <Text style={styles.title}>Congratulations!</Text>
+              <Text style={styles.subText}>
+                You have successfully booked the movie
+              </Text>
 
-          <View style={{ overflow: 'hidden', width: '100%', marginBottom: 25 }}>
-            <View style={styles.borderHack} />
-          </View>
-          <View style={styles.rows}>
-            <View>
-              <View>
-                <Text style={styles.header}>Theatre</Text>
-                <Text style={styles.text}>Paragon Cinema</Text>
+              <View
+                style={{ overflow: 'hidden', width: '100%', marginBottom: 25 }}
+              >
+                <View style={styles.borderHack} />
               </View>
-              <View>
-                <Text style={styles.header}>Date</Text>
-                <Text style={styles.text}>24 May, 2019</Text>
+              <View style={styles.rows}>
+                <View>
+                  <View>
+                    <Text style={styles.header}>Theatre</Text>
+                    <Text style={styles.text}>Paragon Cinema</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.header}>Date</Text>
+                    <Text style={styles.text}>24 May, 2019</Text>
+                  </View>
+                </View>
+                <View>
+                  <View>
+                    <Text style={styles.header}>Seat</Text>
+                    <Text style={styles.text}>E4, E5</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.header}>Time</Text>
+                    <Text style={styles.text}>8:30 - 10:00 AM</Text>
+                  </View>
+                </View>
               </View>
             </View>
-            <View>
-              <View>
-                <Text style={styles.header}>Seat</Text>
-                <Text style={styles.text}>E4, E5</Text>
-              </View>
-              <View>
-                <Text style={styles.header}>Time</Text>
-                <Text style={styles.text}>8:30 - 10:00 AM</Text>
-              </View>
-            </View>
+            <TouchableOpacity
+              style={styles.cancel}
+              onPress={() => navigation.navigate('Home')}
+            >
+              <Feather name='x' size={24} color='rgba(255, 255, 255, 0.8)' />
+            </TouchableOpacity>
           </View>
         </View>
-          <TouchableOpacity style={styles.cancel} onPress={() => props.navigation.navigate('Home')}>
-            <Feather name='x' size={24} color='rgba(255, 255, 255, 0.8)' />
- 
-        </TouchableOpacity>
-      </View>
-    </Container>
+      </Modal>
+    </>
   )
 }
 
 export default Success
 
 const styles = StyleSheet.create({
+  modalBackground: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    backgroundColor: '#00000040'
+  },
+  contentWrapper: {
+    overflow: 'hidden',
+    width: '90%',
+    borderRadius: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 25
+  },
   container: {
     flex: 1,
     alignItems: 'center',

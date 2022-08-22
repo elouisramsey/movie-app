@@ -7,7 +7,7 @@ import {
   TouchableOpacity
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Fontisto,
   Ionicons,
@@ -18,6 +18,7 @@ import { Video, AVPlaybackStatus } from 'expo-av'
 import Details from '../components/others/movieDetails/Details'
 import Reviews from '../components/others/movieDetails/Reviews'
 import Showtimes from '../components/others/movieDetails/Showtimes'
+import { api, key } from '../store/Features/Movies/movieSlice'
 
 const tabs = [
   {
@@ -31,18 +32,87 @@ const tabs = [
   }
 ]
 
+type MovieProps = {
+  title: string
+  poster_path: string
+  id: number
+  adult: boolean
+  backdrop_path: string
+  overview: string
+  tagline: string
+  vote_average: number
+  vote_count: number
+  genres: {
+    id: number
+    name: string
+  }[]
+}
 
-export default function MovieDetails({ navigation }) {
+export default function MovieDetails({
+  navigation,
+  route
+}: {
+  navigation: any
+  route: any
+}) {
+  const baseImgUrl = 'https://image.tmdb.org/t/p'
+  const size = 'w500'
+
+  const { movie } = route.params
+
   const [tabIndex, setTabIndex] = React.useState(0)
-  const changeView = (index) => setTabIndex(index)
+  const changeView = (index: number) => setTabIndex(index)
 
   const video = React.useRef(null)
   const [status, setStatus] = React.useState({})
+  const [selectedMovie, setSelectedMovie] = React.useState<MovieProps>({
+    title: '',
+    poster_path: '',
+    id: 0,
+    adult: false,
+    backdrop_path: '',
+    overview: '',
+    tagline: '',
+    vote_average: 0,
+    vote_count: 0,
+    genres: []
+  })
+  const [actors, setActors] = React.useState<any>([])
+
+  const getMovieDetails = async () => {
+    api.get(`movie/${movie}?api_key=${key}&language=en-US`).then((res) => {
+      setSelectedMovie(res.data)
+    })
+  }
+
+  const getMovieVideos = async () => {
+    api
+      .get(`movie/${movie}/videos?api_key=${key}&language=en-US`)
+      .then((res) => {
+        // console.log(res.data)
+      })
+      .catch((err) => console.log(err))
+  }
+  ///credit/{credit_id}?api_key=4c710f14ee6eeae3c9a0b1b449034c89
+  const getCredit = async () => {
+    api
+      .get(`movie/${movie}/credits?api_key=${key}&language=en-US`)
+      .then((res) => {
+        setActors(res.data)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  useEffect(() => {
+    getMovieDetails()
+    getMovieVideos()
+    getCredit()
+  }, [])
 
   return (
-    <ScrollView bounces={false}>
+    <View>
       {tabIndex === 0 && (
-        <>
+        <ScrollView>
           <SafeAreaView style={styles.preview}>
             <View style={styles.opt}>
               <TouchableOpacity
@@ -50,7 +120,13 @@ export default function MovieDetails({ navigation }) {
                   status.isPlaying ? video.current.pauseAsync() : null
                 }
               >
-                <Ionicons name='chevron-back-outline' size={38} color='white' />
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons
+                    name='chevron-back-outline'
+                    size={38}
+                    color='white'
+                  />
+                </TouchableOpacity>
               </TouchableOpacity>
               <TouchableOpacity>
                 <FontAwesome name='share' size={24} color='white' />
@@ -58,7 +134,10 @@ export default function MovieDetails({ navigation }) {
             </View>
             {/* TODO - Add video poster from RN video poster documentation */}
             <Image
-              source={require('../assets/images/poster.png')}
+              object-fit='cover'
+              source={{
+                uri: `${baseImgUrl}/${size}${selectedMovie.backdrop_path}`
+              }}
               style={[styles.video, { zIndex: 10, resizeMode: 'cover' }]}
             />
             <TouchableOpacity
@@ -88,7 +167,9 @@ export default function MovieDetails({ navigation }) {
           <View style={styles.movieDetails}>
             {!status.isPlaying && (
               <Image
-                source={require('../assets/images/image.png')}
+                source={{
+                  uri: `${baseImgUrl}/${size}${selectedMovie.poster_path}`
+                }}
                 style={styles.moviePoster}
               />
             )}
@@ -96,11 +177,19 @@ export default function MovieDetails({ navigation }) {
 
           <SafeAreaView>
             <View style={styles.movieDetails}>
-              <Text style={styles.movieTitle}>John Wick 3: Parabellum</Text>
-              <Text style={styles.movieText}>2hr 10m | R</Text>
-              <Text style={styles.movieText}>Action, Crime, Thriller</Text>
+              <Text style={styles.movieTitle}>{selectedMovie.title}</Text>
+              <Text style={styles.movieText}>
+                1hr 45mins| {selectedMovie.adult === false ? 'PG' : 'PG-18'}
+              </Text>
+              <Text style={styles.movieText}>
+                {selectedMovie.genres.map((genre) => genre.name).join(', ')}
+              </Text>
               <View style={styles.ratingsHolder}>
-                <Text style={styles.movieRating}>5/5</Text>
+                <Text style={styles.movieRating}>
+                  {selectedMovie.vote_average / 3 >= 5
+                    ? 4
+                    : (selectedMovie.vote_average / 2).toFixed(1)}
+                </Text>
                 <View style={styles.ratings}>
                   <MaterialIcons name='star' size={38} color='#ffc045' />
                   <MaterialIcons name='star' size={38} color='#ffc045' />
@@ -114,19 +203,21 @@ export default function MovieDetails({ navigation }) {
               navigation={navigation}
               changeView={changeView}
               tabIndex={tabIndex}
-              setTabIndex={setTabIndex}
               tabs={tabs}
+              synopsis={selectedMovie.overview}
+              actors={actors}
             />
           </SafeAreaView>
-        </>
+        </ScrollView>
       )}
       {tabIndex === 1 && (
         <Reviews
+          movie={movie}
           navigation={navigation}
           changeView={changeView}
           tabIndex={tabIndex}
-          setTabIndex={setTabIndex}
           tabs={tabs}
+          title={selectedMovie.title}
         />
       )}
       {tabIndex === 2 && (
@@ -134,11 +225,11 @@ export default function MovieDetails({ navigation }) {
           navigation={navigation}
           changeView={changeView}
           tabIndex={tabIndex}
-          setTabIndex={setTabIndex}
+          title={selectedMovie.title}
           tabs={tabs}
         />
       )}
-    </ScrollView>
+    </View>
   )
 }
 

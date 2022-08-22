@@ -12,12 +12,14 @@ import { Notification } from './screens/Notification'
 import Tickets from './screens/Tickets'
 import { SeatSelection } from './screens/SeatSelection'
 import { Extra } from './screens/Extra'
-import {PaymentPage} from './screens/PaymentPage'
-import { Profile } from './screens/Profile'
+import { PaymentPage } from './screens/PaymentPage'
+import Profile from './screens/Profile'
 import AccountInformation from './screens/AccountInformation'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import ResetPassword from './screens/ResetPassword'
 import TransactionHistory from './screens/TransactionHistory'
+import Login from './screens/Login'
+import Signup from './screens/Auth/Signup'
 
 const Stack = createStackNavigator()
 
@@ -186,10 +188,11 @@ const ProfileStack = () => {
             gestureEnabled: true
           }}
         />
+        <Stack.Screen name='Login' component={Login} />
+        <Stack.Screen name='Signup' component={Signup} />
       </Stack.Navigator>
     </SafeAreaProvider>
   )
 }
-
 
 export { MainStack, NotificationStack, TicketStack, ProfileStack }

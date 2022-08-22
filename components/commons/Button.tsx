@@ -1,4 +1,9 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import {
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  StyleSheet
+} from 'react-native'
 import React from 'react'
 
 interface Props {
@@ -8,18 +13,32 @@ interface Props {
   color?: string
   width?: string
   disabled?: boolean
+  loading?: boolean
 }
 
 const Button = (props: Props) => {
-  const { title, onPress, backgroundColor, color, width, disabled } = props
+  const {
+    title,
+    onPress,
+    backgroundColor,
+    color,
+    width = '100%',
+    disabled,
+    loading
+  } = props
 
   return (
     <TouchableOpacity
-      disabled={disabled}
+      disabled={disabled || loading}
       onPress={onPress}
-      style={{ ...styles.container, backgroundColor: disabled ? 'grey' : backgroundColor , width,  }}
+      style={{
+        ...styles.container,
+        backgroundColor: disabled ? 'grey' : backgroundColor,
+        width
+      }}
     >
-      <Text style={{ ...styles.text, color }}>{title}</Text>
+      {loading && <ActivityIndicator size='small' color='#fff' />}
+      <Text style={{ ...styles.text, marginLeft: loading ? 20 : 0, color }}>{title}</Text>
     </TouchableOpacity>
   )
 }
@@ -30,13 +49,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 4,
-    marginVertical: 15
+    marginVertical: 15,
+    flexDirection: 'row'
   },
   text: {
     fontSize: 16,
     lineHeight: 20,
     fontFamily: 'SF_Pro',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   }
 })
 

@@ -6,51 +6,25 @@ import {
   FlatList,
   TouchableOpacity
 } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useAppDispatch, useAppSelector } from '../../store/Hooks/hooks'
+import {
+  setMovieName,
+  setMoviePoster,
+  setTheatre
+} from '../../store/Features/Cinema/cinemaSlice'
+import { getMovies } from '../../store/Features/Movies/movieSlice'
 
-const movies = [
-  {
-    id: 1,
-    genre: 'Crime',
-    title: 'John Wick 3',
-    poster: require('../../assets/images/image.png'),
-    rating: 5,
-    rated: 'R',
-    duration: '2h 10m',
+export default function ComingSoon({ navigation }: { navigation: any }) {
+  const dispatch = useAppDispatch()
+  const trendingMovies = useAppSelector((state) => state.movies.movies)
 
-  },
-  {
-    id: 2,
-    genre: 'Action',
-    title: 'Blade Runner 2049',
-    poster: require('../../assets/images/image-2.png'),
-    rating: 4,
-    rated: 'PG-13',
-    duration: '2h 25m'
-  },
-  {
-    id: 3,
-    genre: 'Action',
-    title: 'Alita: Battle Angel',
-    poster: require('../../assets/images/image-3.png'),
-    rating: 3,
-    rated: 'PG-13',
-    duration: '1h 34m'
-  },
-  {
-    id: 4,
-    genre: 'Action',
-    title: 'Avengers: Infinity War',
-    poster: require('../../assets/images/image-4.png'),
-    rating: 4,
-    rated: 'PG-13',
-    duration: '3h 4m'
-  },
-]
+  useEffect(() => {
+    dispatch(getMovies())
+  }, [])
 
-export default function ComingSoon({ navigation }) {
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item }: { item: any }) => {
     const stars = [
       <MaterialIcons name='star-outline' size={16} color='#ffc045' />,
       <MaterialIcons name='star-outline' size={16} color='#ffc045' />,
@@ -62,17 +36,30 @@ export default function ComingSoon({ navigation }) {
     stars.fill(
       <MaterialIcons name='star' size={14} color='#ffc045' />,
       0,
-      item.rating >= 5 ? 5 : item.rating
+      item.vote_average / 3 >= 5 ? 5 : item.vote_average / 2
     )
 
+    const baseImgUrl = 'https://image.tmdb.org/t/p'
+    const size = 'w500'
+
     return (
-      <TouchableOpacity style={styles.movieHolder} onPress={() => {
-        navigation.navigate('MovieDetails', {
-          movie: item
-        })
-      }}>
-        <Image source={item?.poster} style={styles.moviePoster} />
-        <View style={styles.movieInfo}>
+      <TouchableOpacity
+        style={styles.movieHolder}
+        onPress={async () => {
+          navigation.navigate('MovieDetails', {
+            movie: item.id
+          })
+          dispatch(setMovieName(item.title))
+          dispatch(setMoviePoster(`${baseImgUrl}/${size}${item.poster_path}`))
+        }}
+      >
+        <Image
+          source={{
+            uri: `${baseImgUrl}/${size}${item.poster_path}`
+          }}
+          style={styles.moviePoster}
+        />
+        <View>
           <View style={styles.movieRating}>
             {stars.map((star, index) => (
               <Text style={styles.rating} key={index}>
@@ -84,10 +71,19 @@ export default function ComingSoon({ navigation }) {
             {item.title}
           </Text>
           <View style={styles.minorInfo}>
-            <Text style={styles.movieText}>{item.genre}</Text>
+            <Text
+              style={[
+                styles.movieText,
+                {
+                  textTransform: 'capitalize'
+                }
+              ]}
+            >
+              {item.media_type}
+            </Text>
             <View style={styles.circle} />
             <Text style={styles.movieText}>
-              {item.duration} | {item.rated}
+              1hr 45mins| {item.adult === false ? 'PG' : 'PG-18'}
             </Text>
           </View>
         </View>
@@ -95,17 +91,15 @@ export default function ComingSoon({ navigation }) {
     )
   }
   return (
-
-      <FlatList
-        data={movies}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-        numColumns={2}
-        // style={{flex: 1, flexGrow: 1}}
-      />
-
+    <FlatList
+      data={trendingMovies}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id.toString()}
+      showsVerticalScrollIndicator={false}
+      bounces={false}
+      numColumns={2}
+      // style={{flex: 1, flexGrow: 1}}
+    />
   )
 }
 
@@ -127,11 +121,12 @@ const styles = StyleSheet.create({
   },
   movieTitle: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: 'bold',
     letterSpacing: 1,
-    marginVertical: 10,
-    fontFamily: 'SF_Pro'
+    marginVertical: 3,
+    fontFamily: 'SF_Pro',
+    lineHeight: 20
   },
   minorInfo: {
     flexDirection: 'row',

@@ -14,6 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import ticketReducer from './Features/Ticket/ticketSlice'
 import cinemaReducer from './Features/Cinema/cinemaSlice'
+import userReducer from './User/UserSlice'
+import movieReducer from './Features/Movies/movieSlice'
 
 const persistConfig = {
   key: 'root',
@@ -24,7 +26,9 @@ const persistedReducer = persistReducer(persistConfig, ticketReducer)
 
 const combinedReducer = combineReducers({
   ticket: persistedReducer,
-  cinema: cinemaReducer
+  cinema: cinemaReducer,
+  user: userReducer,
+  movies: movieReducer
 })
 
 const rootReducer = (state: any, action: any) => {
