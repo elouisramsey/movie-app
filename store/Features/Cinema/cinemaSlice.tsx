@@ -56,6 +56,11 @@ const cinemaSlice = createSlice({
         ...state,
         moviePoster: payload
       }
+    },
+    reset() {
+      return {
+        ...initialState
+      }
     }
   }
 })
@@ -67,7 +72,8 @@ export const {
   setResolution,
   setMovieName,
   setSelectedSeat,
-  setMoviePoster
+  setMoviePoster,
+  reset
 } = cinemaSlice.actions
 const cinemaReducer = cinemaSlice.reducer
 export default cinemaReducer

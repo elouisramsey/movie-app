@@ -8,6 +8,8 @@ import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StyleSheet } from 'react-native'
+import Toast from 'react-native-toast-message'
+
 import Tabs from './navigation/tabs'
 import { store, persistor } from './store/store'
 import { Amplify } from 'aws-amplify'
@@ -29,12 +31,13 @@ function App() {
     return (
       <Provider store={store}>
         <PersistGate persistor={persistor}>
-        <SafeAreaProvider>
-          <NavigationContainer>
-            <Tabs />
-            <StatusBar style='light' />
-          </NavigationContainer>
-        </SafeAreaProvider>
+          <SafeAreaProvider>
+            <NavigationContainer>
+              <Tabs />
+              <StatusBar style='light' />
+            </NavigationContainer>
+            <Toast />
+          </SafeAreaProvider>
         </PersistGate>
       </Provider>
     )

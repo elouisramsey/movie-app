@@ -23,7 +23,9 @@ export default function Tabs() {
             borderTopColor: '#0F1B2B',
             backgroundColor: '#0F1B2B',
             elevation: 0,
-            height: 100
+            height: 70,
+            alignItems: 'center',
+            justifyContent: 'center'
           },
           null
         ]

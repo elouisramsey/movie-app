@@ -947,28 +947,28 @@ export const ROW_I = [
       id: 'coke',
       name: 'coca cola',
       price: 4,
-      image: require('../assets/images/coke.png'),
+      image: require('assets/images/coke.png'),
       quantity: 0
     },
     {
       id: 'pepsi',
       name: 'pepsi',
       price: 4,
-      image: require('../assets/images/pepsi.png'),
+      image: require('assets/images/pepsi.png'),
       quantity: 0
     },
     {
       id: 'sevenup',
       name: '7up',
       price: 3,
-      image: require('../assets/images/7up.png'),
+      image: require('assets/images/7up.png'),
       quantity: 0
     },
     {
       id: 'popcorn',
       name: 'popcorn',
       price: 5,
-      image: require('../assets/images/popcorn.png'),
+      image: require('assets/images/popcorn.png'),
       quantity: 0
     }
   ]

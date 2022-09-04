@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { cinemaRolls, extrasData } from '../../FakeData'
+import { cinemaRolls, extrasData } from 'store/FakeData'
 
 const initialState = {
   seats: cinemaRolls,
@@ -26,10 +26,9 @@ const ticketSlice = createSlice({
               }
             }
             return seat
-          }
-          )
+          })
         }
-      } 
+      }
     },
     addExtra: (state: any, { payload }: any) => {
       const { id } = payload
@@ -70,12 +69,15 @@ const ticketSlice = createSlice({
           })
         }
       }
-      
     },
-    clearState: (state: any) => {}
+    resetTicket() {
+      return {
+        ...initialState
+      }
+    }
   }
 })
 
-export const { addTicket, addExtra, decreaseExtra, clearState } = ticketSlice.actions
+export const { addTicket, addExtra, decreaseExtra, resetTicket } = ticketSlice.actions
 const ticketReducer = ticketSlice.reducer
 export default ticketReducer

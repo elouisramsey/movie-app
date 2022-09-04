@@ -9,6 +9,7 @@ export type CreateUserInput = {
   points: number,
   watched: number,
   Image: string,
+  tickets?: Array< string | null > | null,
 };
 
 export type ModelUserConditionInput = {
@@ -17,6 +18,7 @@ export type ModelUserConditionInput = {
   points?: ModelIntInput | null,
   watched?: ModelIntInput | null,
   Image?: ModelStringInput | null,
+  tickets?: ModelStringInput | null,
   and?: Array< ModelUserConditionInput | null > | null,
   or?: Array< ModelUserConditionInput | null > | null,
   not?: ModelUserConditionInput | null,
@@ -82,6 +84,7 @@ export type User = {
   points: number,
   watched: number,
   Image: string,
+  tickets?: Array< string | null > | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -93,6 +96,7 @@ export type UpdateUserInput = {
   points?: number | null,
   watched?: number | null,
   Image?: string | null,
+  tickets?: Array< string | null > | null,
 };
 
 export type DeleteUserInput = {
@@ -108,7 +112,7 @@ export type CreateTicketsInput = {
   seat: string,
   time: string,
   reference: string,
-  extras?: Array< string | null > | null,
+  extras?: string | null,
 };
 
 export type ModelTicketsConditionInput = {
@@ -135,7 +139,7 @@ export type Tickets = {
   seat: string,
   time: string,
   reference: string,
-  extras?: Array< string | null > | null,
+  extras?: string | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -149,7 +153,7 @@ export type UpdateTicketsInput = {
   seat?: string | null,
   time?: string | null,
   reference?: string | null,
-  extras?: Array< string | null > | null,
+  extras?: string | null,
 };
 
 export type DeleteTicketsInput = {
@@ -196,6 +200,7 @@ export type ModelUserFilterInput = {
   points?: ModelIntInput | null,
   watched?: ModelIntInput | null,
   Image?: ModelStringInput | null,
+  tickets?: ModelStringInput | null,
   and?: Array< ModelUserFilterInput | null > | null,
   or?: Array< ModelUserFilterInput | null > | null,
   not?: ModelUserFilterInput | null,
@@ -238,6 +243,12 @@ export type ModelTicketsFilterInput = {
   not?: ModelTicketsFilterInput | null,
 };
 
+export enum ModelSortDirection {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+
+
 export type ModelTicketsConnection = {
   __typename: "ModelTicketsConnection",
   items:  Array<Tickets | null >,
@@ -265,6 +276,7 @@ export type ModelSubscriptionUserFilterInput = {
   points?: ModelSubscriptionIntInput | null,
   watched?: ModelSubscriptionIntInput | null,
   Image?: ModelSubscriptionStringInput | null,
+  tickets?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionUserFilterInput | null > | null,
   or?: Array< ModelSubscriptionUserFilterInput | null > | null,
 };
@@ -346,6 +358,7 @@ export type CreateUserMutation = {
     points: number,
     watched: number,
     Image: string,
+    tickets?: Array< string | null > | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -365,6 +378,7 @@ export type UpdateUserMutation = {
     points: number,
     watched: number,
     Image: string,
+    tickets?: Array< string | null > | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -384,6 +398,7 @@ export type DeleteUserMutation = {
     points: number,
     watched: number,
     Image: string,
+    tickets?: Array< string | null > | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -405,7 +420,7 @@ export type CreateTicketsMutation = {
     seat: string,
     time: string,
     reference: string,
-    extras?: Array< string | null > | null,
+    extras?: string | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -427,7 +442,7 @@ export type UpdateTicketsMutation = {
     seat: string,
     time: string,
     reference: string,
-    extras?: Array< string | null > | null,
+    extras?: string | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -449,7 +464,7 @@ export type DeleteTicketsMutation = {
     seat: string,
     time: string,
     reference: string,
-    extras?: Array< string | null > | null,
+    extras?: string | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -516,6 +531,7 @@ export type GetUserQuery = {
     points: number,
     watched: number,
     Image: string,
+    tickets?: Array< string | null > | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -538,6 +554,7 @@ export type ListUsersQuery = {
       points: number,
       watched: number,
       Image: string,
+      tickets?: Array< string | null > | null,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -560,16 +577,18 @@ export type GetTicketsQuery = {
     seat: string,
     time: string,
     reference: string,
-    extras?: Array< string | null > | null,
+    extras?: string | null,
     createdAt: string,
     updatedAt: string,
   } | null,
 };
 
 export type ListTicketsQueryVariables = {
+  id?: string | null,
   filter?: ModelTicketsFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
 };
 
 export type ListTicketsQuery = {
@@ -585,7 +604,7 @@ export type ListTicketsQuery = {
       seat: string,
       time: string,
       reference: string,
-      extras?: Array< string | null > | null,
+      extras?: string | null,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -642,6 +661,7 @@ export type OnCreateUserSubscription = {
     points: number,
     watched: number,
     Image: string,
+    tickets?: Array< string | null > | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -660,6 +680,7 @@ export type OnUpdateUserSubscription = {
     points: number,
     watched: number,
     Image: string,
+    tickets?: Array< string | null > | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -678,6 +699,7 @@ export type OnDeleteUserSubscription = {
     points: number,
     watched: number,
     Image: string,
+    tickets?: Array< string | null > | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -698,7 +720,7 @@ export type OnCreateTicketsSubscription = {
     seat: string,
     time: string,
     reference: string,
-    extras?: Array< string | null > | null,
+    extras?: string | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -719,7 +741,7 @@ export type OnUpdateTicketsSubscription = {
     seat: string,
     time: string,
     reference: string,
-    extras?: Array< string | null > | null,
+    extras?: string | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -740,7 +762,7 @@ export type OnDeleteTicketsSubscription = {
     seat: string,
     time: string,
     reference: string,
-    extras?: Array< string | null > | null,
+    extras?: string | null,
     createdAt: string,
     updatedAt: string,
   } | null,

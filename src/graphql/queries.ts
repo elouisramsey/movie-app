@@ -11,6 +11,7 @@ export const getUser = /* GraphQL */ `
       points
       watched
       Image
+      tickets
       createdAt
       updatedAt
     }
@@ -30,6 +31,7 @@ export const listUsers = /* GraphQL */ `
         points
         watched
         Image
+        tickets
         createdAt
         updatedAt
       }
@@ -56,11 +58,19 @@ export const getTickets = /* GraphQL */ `
 `;
 export const listTickets = /* GraphQL */ `
   query ListTickets(
+    $id: ID
     $filter: ModelTicketsFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
-    listTickets(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listTickets(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
       items {
         id
         name

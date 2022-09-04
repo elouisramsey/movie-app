@@ -11,6 +11,7 @@ export const onCreateUser = /* GraphQL */ `
       points
       watched
       Image
+      tickets
       createdAt
       updatedAt
     }
@@ -25,6 +26,7 @@ export const onUpdateUser = /* GraphQL */ `
       points
       watched
       Image
+      tickets
       createdAt
       updatedAt
     }
@@ -39,6 +41,7 @@ export const onDeleteUser = /* GraphQL */ `
       points
       watched
       Image
+      tickets
       createdAt
       updatedAt
     }

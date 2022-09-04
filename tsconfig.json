@@ -1,7 +1,21 @@
 {
   "compilerOptions": {
-      "strict": true,
-      "experimentalDecorators": true,
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "strict": true,
+    "experimentalDecorators": true,
+    "paths": {
+      "src/*": ["src/*"],
+      "components/*": ["src/components/*"],
+      "commons/*": ["src/components/commons/*"],
+      "features/*" :["src/screens/Features/*"],
+      "gql/*":["src/components/graphql/*"],
+      "auth/*":["src/screens/Auth/*"],
+      "store/*":["store/*"],
+      "assets/*":["assets/*"],
+
+    },
+    "jsx": "react-native"
   },
   "exclude": [
     "node_modules",

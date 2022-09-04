@@ -14,12 +14,7 @@ const userSlice = createSlice({
         user: payload
       }
     },
-    setUserNull: (state: any) => {
-      return {
-        ...state,
-        user: null
-      }
-    }
+    setUserNull: () => initialState
   }
 })
 

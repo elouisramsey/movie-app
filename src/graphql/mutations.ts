@@ -14,6 +14,7 @@ export const createUser = /* GraphQL */ `
       points
       watched
       Image
+      tickets
       createdAt
       updatedAt
     }
@@ -31,6 +32,7 @@ export const updateUser = /* GraphQL */ `
       points
       watched
       Image
+      tickets
       createdAt
       updatedAt
     }
@@ -48,6 +50,7 @@ export const deleteUser = /* GraphQL */ `
       points
       watched
       Image
+      tickets
       createdAt
       updatedAt
     }

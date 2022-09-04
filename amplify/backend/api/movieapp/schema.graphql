@@ -9,10 +9,11 @@ type User @model {
   points: Int!
   watched: Int!
   Image: String!
+  tickets: [String]
 }
 
 type Tickets @model {
-  id: ID!
+  id: ID! @primaryKey
   name: String!
   Image: String!
   theatre: String!
@@ -20,8 +21,7 @@ type Tickets @model {
   seat: String!
   time: String!
   reference: String!
-  extras: [AWSJSON]
-
+  extras: AWSJSON
 }
 
 type Extras @model {
