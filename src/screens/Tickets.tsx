@@ -17,10 +17,12 @@ import {
   State
 } from 'react-native-gesture-handler'
 
-import { getTickets } from 'src/graphql/queries'
-import { useAppSelector } from 'store/Hooks/hooks'
+import { getTickets, getUser } from 'src/graphql/queries'
+import { useAppDispatch, useAppSelector } from 'store/Hooks/hooks'
 import Login from './Login'
 import { Header } from 'src/components/commons/Header'
+import { COLORS } from 'src/Styles/styles'
+import LoadingIndicator from 'src/components/commons/LoadingIndicator'
 
 const IMAGE_WIDTH = 100 * 0.86
 const IMAGE_HEIGHT = IMAGE_WIDTH * 1.5
@@ -38,9 +40,10 @@ type Ticket = {
 }
 
 const Tickets = ({ navigation }: { navigation: any }) => {
-  const [activeIndex, setActiveIndex] = React.useState<any>(0)
+  const [activeIndex, setActiveIndex] = useState<any>(0)
   const animatedIndex = React.useRef(new Animated.Value(0)).current
   const reactiveAnimated = React.useRef(new Animated.Value(0)).current
+  const [loading, setLoading] = useState<boolean>(false)
 
   const [randomHall, setRandomHall] = useState<string>('d')
   const [data, setData] = useState<Ticket[]>([])
@@ -56,23 +59,35 @@ const Tickets = ({ navigation }: { navigation: any }) => {
 
     getUserTickets()
     return () => {}
-    // randLetter()
   }, [])
 
   useEffect(() => {
     getUserTickets()
-    console.log('calleddddddd')
+
+    return () => {}
   }, [loggedInUser])
 
   const setActiveSlide = React.useCallback((newIndex: number) => {
     setActiveIndex(newIndex)
     reactiveAnimated.setValue(newIndex)
-  })
+  }, [])
 
   const getUserTickets = async () => {
+    if (!loggedInUser) return
+
+    setLoading(true)
     const userTickets = [] as any
-    if (loggedInUser) {
-      let requests = loggedInUser.tickets.map((item: any) => {
+
+    const userInfo = (await API.graphql({
+      query: getUser,
+      variables: {
+        id: loggedInUser?.id
+      }
+    })) as any
+    const data = userInfo.data.getUser
+
+    if (data) {
+      let requests = data.tickets.map((item: any) => {
         return new Promise((resolve, reject) => {
           const t = API.graphql({
             query: getTickets,
@@ -91,19 +106,15 @@ const Tickets = ({ navigation }: { navigation: any }) => {
           })
         })
         .then(() => setData(userTickets))
-        .catch((err) =>
+        .then(() => setLoading(false))
+        .catch((err) => {
           console.log({
             err162: err
           })
-        )
+          setLoading(false)
+        })
     }
   }
-
-  // function randLetter() {
-  //   var letters = ['a', 'b', 'c', 'l', 'm', 'n', 'o']
-  //   var letter = letters[Math.floor(Math.random() * letters.length)]
-  //   return setRandomHall(letter)
-  // }
 
   return (
     <>
@@ -140,140 +151,143 @@ const Tickets = ({ navigation }: { navigation: any }) => {
             >
               <Header title={'Tickets'} />
               <View style={[styles.spacer]} />
-              <FlatList
-                data={data}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEnabled={false}
-                CellRendererComponent={({
-                  index,
-                  item,
-                  children,
-                  style,
-                  ...props
-                }) => {
-                  const newStyle = [
+              {!loading && (
+                <FlatList
+                  data={data}
+                  keyExtractor={(item) => item.id.toString()}
+                  scrollEnabled={false}
+                  CellRendererComponent={({
+                    index,
+                    item,
+                    children,
                     style,
-                    {
-                      zIndex: data.length - index,
-                      left: -IMAGE_WIDTH / 2,
-                      top: -IMAGE_HEIGHT / 2
-                    }
-                  ]
-                  return (
-                    <View index={index} {...props} style={newStyle}>
-                      {children}
-                    </View>
-                  )
-                }}
-                contentContainerStyle={styles.content}
-                renderItem={({ item, index }) => {
-                  const inputRange = [index - 1, index, index + 1]
-                  const translateY = animatedIndex.interpolate({
-                    inputRange,
-                    outputRange: [-30, 0, 30]
-                  })
-                  const opacity = animatedIndex.interpolate({
-                    inputRange,
-                    outputRange: [1 - 1 / VISIBLE_ITEMS, 1, 0]
-                  })
+                    ...props
+                  }) => {
+                    const newStyle = [
+                      style,
+                      {
+                        zIndex: data.length - index,
+                        left: -IMAGE_WIDTH / 2,
+                        top: -IMAGE_HEIGHT / 2
+                      }
+                    ]
+                    return (
+                      <View index={index} {...props} style={newStyle}>
+                        {children}
+                      </View>
+                    )
+                  }}
+                  contentContainerStyle={styles.content}
+                  renderItem={({ item, index }) => {
+                    const inputRange = [index - 1, index, index + 1]
+                    const translateY = animatedIndex.interpolate({
+                      inputRange,
+                      outputRange: [-30, 0, 30]
+                    })
+                    const opacity = animatedIndex.interpolate({
+                      inputRange,
+                      outputRange: [1 - 1 / VISIBLE_ITEMS, 1, 0]
+                    })
 
-                  const scale = animatedIndex.interpolate({
-                    inputRange,
-                    outputRange: [0.92, 1, 0.9]
-                  })
+                    const scale = animatedIndex.interpolate({
+                      inputRange,
+                      outputRange: [0.92, 1, 0.9]
+                    })
 
-                  return (
-                    <Animated.View
-                      style={{
-                        position: 'absolute',
-                        opacity,
-                        transform: [{ translateY }, { scale }]
-                      }}
-                    >
-                      <TouchableOpacity style={styles.ticket}>
-                        <View style={styles.image}>
-                          <Image
-                            style={{
-                              width: '100%',
-                              height: undefined,
-                              aspectRatio: 1
-                            }}
-                            source={{
-                              uri: item.Image
-                            }}
-                            resizeMode='cover'
-                          />
-                        </View>
-
-                        <View style={styles.details}>
-                          <Text style={styles.title}>{item.name}</Text>
-                          <View style={styles.descriptionHolder}>
-                            <Text style={styles.header}>theatre</Text>
-                            <Text style={styles.description}>
-                              {item.theatre}
-                            </Text>
+                    return (
+                      <Animated.View
+                        style={{
+                          position: 'absolute',
+                          opacity,
+                          transform: [{ translateY }, { scale }]
+                        }}
+                      >
+                        <TouchableOpacity style={styles.ticket}>
+                          <View style={styles.image}>
+                            <Image
+                              style={{
+                                width: '100%',
+                                height: undefined,
+                                aspectRatio: 1
+                              }}
+                              source={{
+                                uri: item.Image
+                              }}
+                              resizeMode='cover'
+                            />
                           </View>
-                          <View style={styles.holder}>
+
+                          <View style={styles.details}>
+                            <Text style={styles.title}>{item.name}</Text>
                             <View style={styles.descriptionHolder}>
-                              <Text style={styles.header}>date</Text>
+                              <Text style={styles.header}>theatre</Text>
                               <Text style={styles.description}>
-                                {item.date}
+                                {item.theatre}
                               </Text>
                             </View>
-                            <View style={styles.descriptionHolder}>
-                              <Text style={styles.header}>time</Text>
-                              <Text style={styles.description}>
-                                {item.time}
-                              </Text>
-                            </View>
-                          </View>
-                          <View style={styles.holder}>
-                            <View style={[styles.holder]}>
+                            <View style={styles.holder}>
                               <View style={styles.descriptionHolder}>
-                                <Text style={styles.header}>hall</Text>
+                                <Text style={styles.header}>date</Text>
                                 <Text style={styles.description}>
-                                  {randomHall}
+                                  {item.date}
+                                </Text>
+                              </View>
+                              <View style={styles.descriptionHolder}>
+                                <Text style={styles.header}>time</Text>
+                                <Text style={styles.description}>
+                                  {item.time}
                                 </Text>
                               </View>
                             </View>
+                            <View style={styles.holder}>
+                              <View style={[styles.holder]}>
+                                <View style={styles.descriptionHolder}>
+                                  <Text style={styles.header}>hall</Text>
+                                  <Text style={styles.description}>
+                                    {randomHall}
+                                  </Text>
+                                </View>
+                              </View>
 
-                            <View
-                              style={[
-                                styles.descriptionHolder,
-                                { alignItems: 'flex-start', width: '30%' }
-                              ]}
-                            >
-                              <Text style={styles.header}>seat</Text>
-                              <Text style={styles.description}>
-                                {item.seat}
+                              <View
+                                style={[
+                                  styles.descriptionHolder,
+                                  { alignItems: 'flex-start', width: '30%' }
+                                ]}
+                              >
+                                <Text style={styles.header}>seat</Text>
+                                <Text style={styles.description}>
+                                  {item.seat}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                          <View style={styles.barcode}>
+                            <Image
+                              source={require('assets/images/barcode.png')}
+                              resizeMode='contain'
+                            />
+                            <View style={[styles.holder, { width: '75%' }]}>
+                              <Text style={styles.barcodeText}>par</Text>
+                              <Text style={styles.barcodeText}>
+                                {item.id.length === 3
+                                  ? item.id + 67890395059690
+                                  : item.id}
                               </Text>
                             </View>
                           </View>
-                        </View>
-                        <View style={styles.barcode}>
-                          <Image
-                            source={require('assets/images/barcode.png')}
-                            resizeMode='contain'
-                          />
-                          <View style={[styles.holder, { width: '75%' }]}>
-                            <Text style={styles.barcodeText}>par</Text>
-                            <Text style={styles.barcodeText}>
-                              {item.id.length === 3
-                                ? item.id + 67890395059690
-                                : item.id}
-                            </Text>
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                    </Animated.View>
-                  )
-                }}
-              />
+                        </TouchableOpacity>
+                      </Animated.View>
+                    )
+                  }}
+                />
+              )}
+              <LoadingIndicator loading={loading} />
             </SafeAreaView>
           </FlingGestureHandler>
         </FlingGestureHandler>
       ) : (
-        <Login navigateTopage={true} navigation={navigation} />
+        <Login navigateTopage={false} navigation={navigation} />
       )}
     </>
   )
@@ -292,7 +306,7 @@ const styles = StyleSheet.create({
   },
   ticket: {
     height: 550,
-    backgroundColor: '#2B3543',
+    backgroundColor: COLORS.grayed,
     borderRadius: 8,
     overflow: 'hidden'
   },

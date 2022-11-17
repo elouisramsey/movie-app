@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { COLORS } from 'src/Styles/styles'
 
 interface Props {
   title: string
@@ -21,7 +22,7 @@ const Header: React.FC<Props> = ({ title, link, onPress }) => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    borderBottomColor: '#2B3543',
+    borderBottomColor: COLORS.grayed,
     borderBottomWidth: 2,
     flexDirection: 'row',
     justifyContent: 'space-between',

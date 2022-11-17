@@ -13,6 +13,7 @@ import Dateformatter from 'src/components/commons/DateFormatter'
 import Info from 'src/components/commons/Info'
 import Segment from 'src/components/commons/Segment'
 import { api, key } from 'store/Features/Movies/movieSlice'
+import { COLORS } from 'src/Styles/styles'
 
 
 
@@ -85,7 +86,7 @@ export default function Reviews({
               <Text style={styles.comment}>{item.content}</Text>
             </View>
             <View style={styles.arrow}>
-              <MaterialIcons name='arrow-drop-down' size={80} color='#2B3543' />
+              <MaterialIcons name='arrow-drop-down' size={80} color={COLORS.grayed }/>
             </View>
             <View style={styles.commenter}>
               <Image

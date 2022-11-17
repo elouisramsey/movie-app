@@ -6,7 +6,7 @@ import * as Font from 'expo-font'
 import AppLoading from 'expo-app-loading'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { StyleSheet } from 'react-native'
 import Toast from 'react-native-toast-message'
 
@@ -16,6 +16,7 @@ import { Amplify } from 'aws-amplify'
 import awsconfig from './src/aws-exports'
 // @ts-ignore
 import { withAuthenticator } from 'aws-amplify-react-native'
+import { COLORS } from 'src/Styles/styles'
 
 Amplify.configure(awsconfig)
 
@@ -31,13 +32,13 @@ function App() {
     return (
       <Provider store={store}>
         <PersistGate persistor={persistor}>
-          <SafeAreaProvider>
+          <SafeAreaView style={styles.container}>
             <NavigationContainer>
               <Tabs />
               <StatusBar style='light' />
             </NavigationContainer>
             <Toast />
-          </SafeAreaProvider>
+          </SafeAreaView>
         </PersistGate>
       </Provider>
     )
@@ -57,8 +58,6 @@ export default App
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center'
+    backgroundColor: COLORS.secondary
   }
 })

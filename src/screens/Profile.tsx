@@ -23,8 +23,7 @@ import { useAppSelector, useAppDispatch } from 'store/Hooks/hooks'
 import { setUserNull } from 'store/User/UserSlice'
 import Login from './Login'
 import { Header } from 'src/components/commons/Header'
-
-
+import { COLORS } from 'src/Styles/styles'
 
 const links = [
   {
@@ -76,7 +75,7 @@ const Profile = ({ navigation }: Props) => {
         }
       } catch (error) {
         console.log(error)
-        navigation.navigate('Login')
+        // navigation.navigate('Login')
       }
     }
     getUser()
@@ -98,12 +97,7 @@ const Profile = ({ navigation }: Props) => {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        paddingTop: 35
-      }}
-    >
+    <View>
       <Header
         onPress={!user ? () => navigation.navigate('Login') : handleLogout}
         title={!loggedInUser ? 'Sign in' : 'Profile'}
@@ -243,7 +237,7 @@ const styles = StyleSheet.create({
     marginTop: 30
   },
   button: {
-    backgroundColor: '#2B3543',
+    backgroundColor: COLORS.grayed,
     borderRadius: 4,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -252,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    borderColor: '#2B3543',
+    borderColor: COLORS.grayed,
     borderWidth: 1,
     borderStyle: 'solid',
     marginBottom: 10,

@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TextInput } from 'react-native'
 import React from 'react'
+import { COLORS } from 'src/Styles/styles'
 
 type Props = {
   icon?: any
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: '#2B3543'
+    borderColor: COLORS.grayed
   },
   input: {
     flex: 1,

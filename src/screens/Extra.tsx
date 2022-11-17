@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Button from 'src/components/commons/Button'
 import { Container } from 'src/components/commons/Container'
 import Info from 'src/components/commons/Info'
+import { COLORS } from 'src/Styles/styles'
 import { decreaseExtra, addExtra } from 'store/Features/Ticket/ticketSlice'
 import { totalPriceSelector, totalExtraPriceSelector, totalExtraQty } from 'store/Hooks/costCal'
 import { useAppDispatch, useAppSelector } from 'store/Hooks/hooks'
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 25,
     borderBottomWidth: 1,
-    borderBottomColor: '#2B3543',
+    borderBottomColor: COLORS.grayed,
   },
   items: {
     flexDirection: 'row'
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
-    backgroundColor: '#2B3543',
+    backgroundColor: COLORS.grayed,
     paddingHorizontal: 25,
     paddingVertical: 5,
     position: 'absolute',

@@ -3,6 +3,7 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons'
 import React from 'react'
 
 import { useAppDispatch } from 'store/Hooks/hooks'
+import { COLORS } from 'src/Styles/styles'
 
 interface Props {
   navigation: any
@@ -45,7 +46,7 @@ export default function Info({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    borderBottomColor: '#2B3543',
+    borderBottomColor: COLORS.grayed,
     borderBottomWidth: 2,
     flexDirection: 'row',
     justifyContent: 'space-between',

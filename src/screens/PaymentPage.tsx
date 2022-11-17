@@ -1,21 +1,20 @@
-import { View, Text, StyleSheet, Image,  } from 'react-native'
+import { View, Text, StyleSheet, Image } from 'react-native'
 import React, { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import uuid from 'react-native-uuid'
-import { API, Auth } from 'aws-amplify'
 
 import { Input } from 'src/components/commons/Input'
 import ParentContainer from 'src/components/commons/ParentContainer'
 import ScrollContainer from 'src/components/commons/ScrollContainer'
 import Success from 'src/components/commons/Success'
-import { createTickets, updateUser } from 'src/graphql/mutations'
-import { getUser } from 'src/graphql/queries'
-import { totalPriceSelector, totalExtraPriceSelector, extrasSelected } from 'store/Hooks/costCal'
+import {
+  totalPriceSelector,
+  totalExtraPriceSelector,
+} from 'store/Hooks/costCal'
 import { useAppSelector } from 'store/Hooks/hooks'
 import Login from './Login'
 import Button from 'src/components/commons/Button'
-
-
+import { COLORS } from 'src/Styles/styles'
+import { createTicketonDb } from './payment/TicketPayment'
 
 type Props = {
   navigation: any
@@ -30,18 +29,18 @@ type CardInfo = {
 
 const PaymentPage = (props: Props) => {
   const loggedInUser = useAppSelector((state) => state.user.user)
-  const ticketInfo = useAppSelector((state) => state.cinema)
+
   const poster = useAppSelector((state) => state.cinema.moviePoster)
   const [loading, setLoading] = React.useState(false)
   const totalPrice = useAppSelector(totalPriceSelector)
   const totalExtra = useAppSelector(totalExtraPriceSelector)
-  const extras = useAppSelector(extrasSelected)
+
   const selectedInfo = useAppSelector((state) => state.cinema)
   const { date, time, theatre, movieName, resolution, selectedSeat } =
     selectedInfo
   const [cardExpiration, setCardExpiration] = useState('')
 
-  const [showModal, setShowModal] = React.useState(false)
+  const [showModal, setShowModal] = React.useState<boolean>(false)
   const {
     handleSubmit,
     control,
@@ -101,216 +100,148 @@ const PaymentPage = (props: Props) => {
     }
   }
 
-  const createTicketonDb = async (setLoading: any) => {
-    const isUserAvailable = await Auth.currentAuthenticatedUser()
-    setLoading(true)
-    try {
-      const createTicket = (await API.graphql({
-        query: createTickets,
-        variables: {
-          input: {
-            id: uuid.v4().slice(0, 18),
-            name: ticketInfo.movieName,
-            date: ticketInfo.date,
-            time: ticketInfo.time,
-            theatre: ticketInfo.theatre,
-            Image: ticketInfo.moviePoster,
-            seat: ticketInfo.selectedSeat,
-            reference: uuid.v4().slice(0, 7)
-          }
-        }
-      })) as any
-
-      const getUserFromDb = (await API.graphql({
-        query: getUser,
-        variables: {
-          id: isUserAvailable.attributes.sub
-        }
-      })) as any
-      // const updatePoints = await API.graphql({
-      //   query: updateUser,
-      //   variables: {
-      //     input: {
-      //       id: isUserAvailable.attributes.sub,
-      //       points:   10
-      //     }
-      //   }
-
-      // })
-
-      if (createTicket) {
-        const { Image, id, name, points, tickets, watched, email } =
-          getUserFromDb.data.getUser
-        const updateUserInfo = await API.graphql({
-          query: updateUser,
-          variables: {
-            input: {
-              id: isUserAvailable.attributes.sub,
-              email: email,
-              name: name,
-              points: points + 3,
-              watched: 0,
-              Image: '',
-              tickets:
-                tickets === null
-                  ? [createTicket.data?.createTickets.id]
-                  : [...tickets, createTicket?.data.createTickets.id]
-            }
-          }
-        })
-        if (updateUserInfo) {
-          setLoading(false)
-          setShowModal(true)
-          console.log(getUserFromDb.data.getUser)
-        }
-      }
-    } catch (error) {
-      console.log(error)
-      setLoading(false)
-    }
-  }
-
   const onSubmit = () => {
-    createTicketonDb(setLoading)
+    createTicketonDb({ setLoading, setShowModal })
   }
 
   return (
     <ParentContainer navigation={props.navigation} headerChildren={'Payment'}>
       {loggedInUser ? (
-        <View style={{
-          height: '100%'
-        }}>
+        <View
+          style={{
+            height: '100%'
+          }}
+        >
           <ScrollContainer>
-              <View style={styles.card}>
-                <Image
-                  style={styles.imageHolder}
-                  source={{
-                    uri: poster
-                  }}
-                />
+            <View style={styles.card}>
+              <Image
+                style={styles.imageHolder}
+                source={{
+                  uri: poster
+                }}
+              />
 
-                <View style={styles.textHolder}>
-                  <View style={{ flexDirection: 'row', width: '100%' }}>
-                    <Text style={[styles.name]}>{movieName}</Text>
-                  </View>
-                  <Text style={styles.subItems}>{time}</Text>
-                  <Text style={styles.subItems}>{date}</Text>
-                  <Text style={styles.subItems}>Seat: {selectedSeat}</Text>
-                  <Text style={styles.subItems}>Theatre: {theatre}</Text>
+              <View style={styles.textHolder}>
+                <View style={{ flexDirection: 'row', width: '100%' }}>
+                  <Text style={[styles.name]}>{movieName}</Text>
+                </View>
+                <Text style={styles.subItems}>{time}</Text>
+                <Text style={styles.subItems}>{date}</Text>
+                <Text style={styles.subItems}>Seat: {selectedSeat}</Text>
+                <Text style={styles.subItems}>Theatre: {theatre}</Text>
+              </View>
+            </View>
+            <View>
+              <Controller
+                name='cardName'
+                defaultValue=''
+                control={control}
+                rules={{
+                  required: { value: true, message: 'Name is required' }
+                }}
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    error={Boolean(errors?.cardName)}
+                    errorText={errors?.cardName?.message}
+                    onChangeText={(text) => onChange(text)}
+                    value={value}
+                    label='Name on Card'
+                  />
+                )}
+              />
+              <Controller
+                name='cardNumber'
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: 'Card Number is required'
+                  },
+                  minLength: {
+                    value: 16,
+                    message: 'Card Number is not valid'
+                  },
+                  maxLength: {
+                    value: 16,
+                    message: 'Card Number should be up to 16 digits'
+                  }
+                }}
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    error={Boolean(errors?.cardNumber)}
+                    errorText={errors?.cardNumber?.message}
+                    onChangeText={(text) => onChange(text)}
+                    value={value}
+                    label='Card Number'
+                    keyboardType='numeric'
+                    maxlength={16}
+                  />
+                )}
+              />
+              <View style={styles.cardExpiration}>
+                <View style={{ width: '50%' }}>
+                  <Controller
+                    name='cardExpiration'
+                    control={control}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: 'Card Expiration is required'
+                      },
+                      maxLength: {
+                        value: 4,
+                        message: 'Card Expiration is invalid'
+                      },
+                      minLength: {
+                        value: 4,
+                        message: 'Card Expiration is invalid'
+                      }
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                      <Input
+                        error={Boolean(errors?.cardExpiration)}
+                        errorText={errors?.cardExpiration?.message}
+                        onChangeText={(text) => {
+                          inputToValue(text)
+                          onChange(text)
+                        }}
+                        value={formatFunction(cardExpiration)}
+                        label='Date Expires'
+                        keyboardType='numeric'
+                      />
+                    )}
+                  />
+                </View>
+                <View style={{ width: '40%' }}>
+                  <Controller
+                    name='cardCvv'
+                    control={control}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: 'Card CVV is required'
+                      },
+                      minLength: {
+                        value: 3,
+                        message: 'Card CVV should be up to 3'
+                      },
+                      maxLength: { value: 3, message: 'Card CVV is invalid' }
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                      <Input
+                        error={Boolean(errors?.cardCvv)}
+                        errorText={errors?.cardCvv?.message}
+                        onChangeText={(text) => onChange(+text)}
+                        value={value}
+                        label='CVV'
+                        keyboardType='numeric'
+                        maxlength={3}
+                      />
+                    )}
+                  />
                 </View>
               </View>
-              <View>
-                <Controller
-                  name='cardName'
-                  defaultValue=''
-                  control={control}
-                  rules={{
-                    required: { value: true, message: 'Name is required' }
-                  }}
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      error={Boolean(errors?.cardName)}
-                      errorText={errors?.cardName?.message}
-                      onChangeText={(text) => onChange(text)}
-                      value={value}
-                      label='Name on Card'
-                    />
-                  )}
-                />
-                <Controller
-                  name='cardNumber'
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: 'Card Number is required'
-                    },
-                    minLength: {
-                      value: 16,
-                      message: 'Card Number is not valid'
-                    },
-                    maxLength: {
-                      value: 16,
-                      message: 'Card Number should be up to 16 digits'
-                    }
-                  }}
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      error={Boolean(errors?.cardNumber)}
-                      errorText={errors?.cardNumber?.message}
-                      onChangeText={(text) => onChange(text)}
-                      value={value}
-                      label='Card Number'
-                      keyboardType='numeric'
-                      maxlength={16}
-                    />
-                  )}
-                />
-                <View style={styles.cardExpiration}>
-                  <View style={{ width: '50%' }}>
-                    <Controller
-                      name='cardExpiration'
-                      control={control}
-                      rules={{
-                        required: {
-                          value: true,
-                          message: 'Card Expiration is required'
-                        },
-                        maxLength: {
-                          value: 4,
-                          message: 'Card Expiration is invalid'
-                        },
-                        minLength: {
-                          value: 4,
-                          message: 'Card Expiration is invalid'
-                        }
-                      }}
-                      render={({ field: { onChange, value } }) => (
-                        <Input
-                          error={Boolean(errors?.cardExpiration)}
-                          errorText={errors?.cardExpiration?.message}
-                          onChangeText={(text) => {
-                            inputToValue(text)
-                            // onChange(text)
-                          }}
-                          value={formatFunction(cardExpiration)}
-                          label='Date Expires'
-                          keyboardType='numeric'
-                        />
-                      )}
-                    />
-                  </View>
-                  <View style={{ width: '40%' }}>
-                    <Controller
-                      name='cardCvv'
-                      control={control}
-                      rules={{
-                        required: {
-                          value: true,
-                          message: 'Card CVV is required'
-                        },
-                        minLength: {
-                          value: 3,
-                          message: 'Card CVV should be up to 3'
-                        },
-                        maxLength: { value: 3, message: 'Card CVV is invalid' }
-                      }}
-                      render={({ field: { onChange, value } }) => (
-                        <Input
-                          error={Boolean(errors?.cardCvv)}
-                          errorText={errors?.cardCvv?.message}
-                          onChangeText={(text) => onChange(+text)}
-                          value={value}
-                          label='CVV'
-                          keyboardType='numeric'
-                          maxlength={3}
-                        />
-                      )}
-                    />
-                  </View>
-                </View>
-              </View>
-     
+            </View>
           </ScrollContainer>
 
           <View style={styles.buttonHolder}>
@@ -344,7 +275,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderWidth: 1,
-    borderColor: '#2B3543',
+    borderColor: COLORS.grayed,
     borderRadius: 8,
     marginBottom: 25,
     overflow: 'hidden'
@@ -388,10 +319,9 @@ const styles = StyleSheet.create({
   buttonHolder: {
     position: 'absolute',
     left: 0,
-    bottom: 0,
+    bottom: 50,
     right: 0,
     paddingHorizontal: 25,
-    backgroundColor: 'yellow',
     zIndex: 100
   },
   cost: {

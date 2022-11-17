@@ -19,7 +19,8 @@ import movieReducer from './Features/Movies/movieSlice'
 
 const persistConfig = {
   key: 'root',
-  storage: AsyncStorage
+  storage: AsyncStorage,
+  version: 1
 }
 
 const persistedReducer = persistReducer(persistConfig, ticketReducer)
@@ -50,9 +51,8 @@ export const store = configureStore({
   }
 })
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+
 export type AppDispatch = typeof store.dispatch
 
 export const persistor = persistStore(store)

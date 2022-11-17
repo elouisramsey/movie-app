@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { useEffect } from 'react'
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { COLORS } from 'src/Styles/styles'
 import Layout from './Layout'
 
 const shadow = {
@@ -167,7 +168,7 @@ Segment.defaultProps = {
   onChange: () => {},
   currentIndex: 0,
   segmentedControlBackgroundColor: 'transparent',
-  activeSegmentBackgroundColor: '#D9251D',
+  activeSegmentBackgroundColor: COLORS  .inactive,
   textColor: '#333',
   activeTextColor: '#fff',
   paddingVertical: 12

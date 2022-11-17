@@ -9,6 +9,7 @@ import { addTicket } from 'store/Features/Ticket/ticketSlice'
 import { totalPriceSelector } from 'store/Hooks/costCal'
 import { useAppSelector, useAppDispatch } from 'store/Hooks/hooks'
 import Button from 'src/components/commons/Button'
+import { COLORS } from 'src/Styles/styles'
 
 interface Props {
   available: boolean
@@ -426,7 +427,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
-    backgroundColor: '#2B3543',
+    backgroundColor: COLORS.grayed,
     paddingHorizontal: 25,
     paddingVertical: 5
     // position: 'absolute',

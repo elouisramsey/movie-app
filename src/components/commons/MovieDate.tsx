@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native'
+import { COLORS } from 'src/Styles/styles'
 import Layout from './Layout'
 
 const shadow = {
@@ -23,6 +24,15 @@ const shadow = {
 // So that it stretches in landscape mode.
 const width = Layout.window.width - 2
 
+type Props = {
+  tabs: any
+  onChange: (val: any) => void
+  currentIndex: number
+  segmentedControlBackgroundColor: string
+  paddingVertical: number
+  activeSegmentBackgroundColor: string
+}
+
 function MovieDate({
   tabs,
   onChange,
@@ -30,9 +40,7 @@ function MovieDate({
   segmentedControlBackgroundColor,
   paddingVertical,
   activeSegmentBackgroundColor,
-  textColor,
-  activeTextColor
-}) {
+}: Props) {
   const translateValue = (width - 4) / tabs?.length
   const [tabTranslate, setTabTranslate] = React.useState(new Animated.Value(0))
 
@@ -61,7 +69,7 @@ function MovieDate({
         { paddingVertical: paddingVertical }
       ]}
     >
-      {tabs.map((tab, index) => {
+      {tabs.map((tab: any, index: number) => {
         const isCurrentIndex = currentIndex === index
         return (
           <TouchableOpacity
@@ -124,7 +132,7 @@ const styles = StyleSheet.create({
     width: 88,
     marginRight: 10,
     borderRadius: 4,
-    borderColor: '#2B3543',
+    borderColor: COLORS.grayed,
     borderWidth: 1,
     borderStyle: 'solid',
   },

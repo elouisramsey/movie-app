@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
+import { API_TOKEN, MOVIE_API_KEY, MOVIE_BASE_URL } from '@env'
+
 export const api = axios.create({
-  baseURL: 'https://api.themoviedb.org/3/'
+  baseURL: MOVIE_BASE_URL
 })
 
-export const key = '4c710f14ee6eeae3c9a0b1b449034c89'
+export const key = MOVIE_API_KEY
 
-api.defaults.headers.common[
-  'Authorization'
-] = `Bearer eyJhbGciOiJIUzI1NiJ9eyJhdWQiOiI0YzcxMGYxNGVlNmVlYWUzYzlhMGIxYjQ0OTAzNGM4OSIsInN1YiI6IjYyMThhNjA2N2RmZGE2MDA2OTJkZGQ3YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.-Dvg7GG8b1XHLt5TL3o_TIfSr5ky6kldAf9-RbM2rIY`
+api.defaults.headers.common['Authorization'] = `Bearer ${API_TOKEN}`
 
 const initialState = {
   movies: [],
@@ -16,11 +16,7 @@ const initialState = {
   error: null
 }
 
-// https://api.themoviedb.org/3/trending/movie/week?api_key=4c710f14ee6eeae3c9a0b1b449034c89'
-
-axios.defaults.headers.common[
-  'Authorization'
-] = `Bearer eyJhbGciOiJIUzI1NiJ9eyJhdWQiOiI0YzcxMGYxNGVlNmVlYWUzYzlhMGIxYjQ0OTAzNGM4OSIsInN1YiI6IjYyMThhNjA2N2RmZGE2MDA2OTJkZGQ3YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.-Dvg7GG8b1XHLt5TL3o_TIfSr5ky6kldAf9-RbM2rIY`
+axios.defaults.headers.common['Authorization'] = `Bearer ${API_TOKEN}`
 
 export const getMovies = createAsyncThunk(
   `trending/movie/week?api_key=${key}`,

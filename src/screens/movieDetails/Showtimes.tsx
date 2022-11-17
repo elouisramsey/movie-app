@@ -17,6 +17,7 @@ import Segment from 'src/components/commons/Segment'
 import { setTheatre, setDate, setTime, setResolution } from 'store/Features/Cinema/cinemaSlice'
 import { useAppDispatch } from 'store/Hooks/hooks'
 import Button from 'src/components/commons/Button'
+import { COLORS } from 'src/Styles/styles'
 
 
 const dates = [
@@ -267,7 +268,7 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
         )} */}
         {!showDatePicker && (
           <>
-            <View style={styles.top}>
+            {/* <View style={styles.top}>
               <Text style={styles.header}>Choose Date</Text>
               <TouchableOpacity
                 onPress={() => {
@@ -282,7 +283,7 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
               >
                 <Entypo name='calendar' size={24} color='#00E0FF' />
               </TouchableOpacity>
-            </View>
+            </View> */}
             <MovieDate
               tabs={dates}
               currentIndex={currentTab}
@@ -329,8 +330,8 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
                               backgroundColor:
                                 selectedTime === item.time &&
                                 currentResolution === '2d'
-                                  ? '#D9251D'
-                                  : '#2B3543'
+                                  ? COLORS.inactive
+                                  : COLORS.grayed
                             }
                           ]}
                         >
@@ -367,8 +368,8 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
                               backgroundColor:
                                 selectedTime === item.time &&
                                 currentResolution === '2d'
-                                  ? '#D9251D'
-                                  : '#2B3543'
+                                  ? COLORS.inactive
+                                  : COLORS.grayed
                             }
                           ]}
                         >
@@ -405,8 +406,8 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
                               backgroundColor:
                                 selectedTime === item.time &&
                                 currentResolution === '2d'
-                                  ? '#D9251D'
-                                  : '#2B3543'
+                                  ? COLORS.inactive
+                                  : COLORS.grayed
                             }
                           ]}
                         >
@@ -447,8 +448,8 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
                               backgroundColor:
                                 selectedTime === item.time &&
                                 currentResolution === 'imax'
-                                  ? '#D9251D'
-                                  : '#2B3543'
+                                  ? COLORS.inactive
+                                  : COLORS.grayed
                             }
                           ]}
                         >
@@ -485,8 +486,8 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
                               backgroundColor:
                                 selectedTime === item.time &&
                                 currentResolution === 'imax'
-                                  ? '#D9251D'
-                                  : '#2B3543'
+                                  ? COLORS.inactive
+                                  : COLORS.grayed
                             }
                           ]}
                         >
@@ -523,8 +524,8 @@ export default function Showtimes({ navigation, tabIndex, changeView, tabs, titl
                               backgroundColor:
                                 selectedTime === item.time &&
                                 currentResolution === 'imax'
-                                  ? '#D9251D'
-                                  : '#2B3543'
+                                  ? COLORS.inactive
+                                  : COLORS.grayed
                             }
                           ]}
                         >
@@ -579,7 +580,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4,
     borderBottomLeftRadius: 4,
     borderBottomRightRadius: 4,
-    backgroundColor: '#2B3543',
+    backgroundColor: COLORS.grayed,
     marginVertical: 15
   },
   pickerItem: {

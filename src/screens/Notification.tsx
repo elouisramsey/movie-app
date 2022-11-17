@@ -4,6 +4,7 @@ import React from 'react'
 import { FontAwesome, Ionicons, Foundation, Feather } from '@expo/vector-icons'
 
 import { Header } from 'src/components/commons/Header'
+import { COLORS } from 'src/Styles/styles'
 
 const NotificationItems = [
   {
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   borderHack: {
     borderWidth: 2,
     borderStyle: 'dotted',
-    borderColor: '#2B3543',
+    borderColor: COLORS.grayed,
     borderRadius: 8,
     marginTop: -2
   },
